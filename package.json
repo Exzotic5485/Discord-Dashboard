@@ -6,6 +6,7 @@
     "@babel/preset-typescript": "^7.15.0",
     "@types/node": "^18.0.6",
     "assert-diff": "^3.0.2",
+    "axios-mock-adapter": "^1.21.2",
     "clean-jsdoc-theme": "^4.1.6",
     "discord.js": "13",
     "discord.js-docgen": "github:discordjs/docgen#ts-patch",
@@ -15,14 +16,19 @@
     "jsdoc": "^3.6.11",
     "jsdoc-babel": "^0.5.0",
     "point-of-view": "5",
-    "session-file-store": "^1.5.0"
+    "session-file-store": "^1.5.0",
+    "typescript": "^4.7.4"
   },
   "name": "discord-dashboard",
   "version": "beta-3.0.0",
   "main": "dist/index.d.ts",
   "license": "CC BY-NC-SA 4.0",
   "scripts": {
-    "docs": "jsdoc src/index.ts src/formtypes/TextInput.ts src/types/types.ts -c jsdoc.json -u ./Tutorials"
+    "docs": "jsdoc src/index.ts src/formtypes/TextInput.ts src/types/types.ts -c jsdoc.json -u ./Tutorials",
+    "test": "ava"
+  },
+  "jest": {
+    "collectCoverage": true
   },
   "dependencies": {
     "@fastify/cookie": "6.*",
@@ -30,9 +36,12 @@
     "@fastify/oauth2": "5.*",
     "@fastify/session": "8.*",
     "@fastify/static": "5.*",
+    "ava": "^4.3.1",
     "axios": "^0.27.2",
     "colors": "^1.4.0",
     "discord-oauth2": "^2.10.0",
-    "fastify": "3.*"
+    "fastify": "3.*",
+    "jest": "^28.1.3",
+    "node-async-exec": "^1.2.0"
   }
 }

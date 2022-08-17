@@ -11,9 +11,25 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
             let return_categories: any = [];
 
             for(const category of props.categories) {
+                let additional: any = {
+                    isDisabledGlobally: (await category.isDisabledGlobally({ guild, member }))
+                }
+                if(!additional.isDisabledGlobally){
+                    additional = {
+                        ...additional,
+                        showEnableDisableSwitch: category.showEnableDisableSwitch,
+                    }
+                }
+                if(category.showEnableDisableSwitch === true && !additional.isDisabledGlobally){
+                    additional = {
+                        ...additional,
+                        isEnabled: (await category.isEnabled({ guild, member }))
+                    }
+                }
                 return_categories.push({
                     name: category.name,
                     id: category.id,
+                    ...additional,
                     options: []
                 })
                 for(const option of category.options){
@@ -46,6 +62,16 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
                     // Delete unnecessary properties
                     delete option.type.disabled
 
+                    // Overwrite allowed if category is globally disabled
+                    if(additional.isDisabledGlobally){
+                        option.allowed = false
+                        option.reason = typeof(additional.isDisabledGlobally) === 'string' ? additional.isDisabledGlobally : 'Whole category is globally disabled'
+                    }
+
+                    if(option.allowed === null || option.allowed === undefined) {
+                        option.allowed = true
+                    }
+
                     // Add to return
                     return_categories[return_categories.length-1].options.push(JSON.parse(JSON.stringify(option)))
                 }
@@ -57,6 +83,12 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
         instance.post('/:guild_id/settings', async (request: any, reply: any) => {
             const { settings } = request.body
             const errored_messages: object[] = []
+
+            const member_id = request.session?.user?.id
+            if(!member_id) return reply.code(401).send({ error: 'You are not logged in' })
+            const guild = props.discordClient.guilds.cache.get(request.params.guild_id)
+            const member = guild.members.cache.get(member_id)
+
             for(const category_body of settings){
                 const categoryData = props.categories.find((e:any)=>e.id === category_body.id)
                 for(const option_body of category_body.options){
@@ -81,13 +113,13 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
 
                     // TEST: If should be displayed for user on guild
                     if(optionData.shouldBeDisplayed){
-                        const display = await optionData.shouldBeDisplayed({  })
+                        const display = await optionData.shouldBeDisplayed({ guild, member })
                         if(display == false) continue
                     }
 
                     //  TEST: If is disabled for user with prePermissionsCheck
                     if(optionData.permissionsValidate){
-                        const permissionsValidate = await optionData.permissionsValidate({  })
+                        const permissionsValidate = await optionData.permissionsValidate({ guild, member })
                         if(permissionsValidate) {
                             errored_messages.push({
                                 category: {
@@ -105,7 +137,7 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
                     }
 
                     // ServerSide Validation
-                    const validated_error = await optionData.serverSideValidation({newData:option_body.newData})
+                    const validated_error = await optionData.serverSideValidation(option_body.newData, { guild, member })
                     if(validated_error){
                         errored_messages.push({
                             category: {
@@ -122,7 +154,7 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
                     }
 
                     // All test passed, set new value
-                    await optionData.set({newData: option_body.value})
+                    await optionData.set(option_body.value, { guild, member })
                 }
             }
             return reply.send({error:false,errored_messages})

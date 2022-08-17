@@ -1,9 +1,7 @@
 /**
  * @file index.ts
- * @title Discord-Dashboard Source Code
  * @author Assistants Center
  * @license CC BY-NC-SA 4.0
- * @version 3.0.0
  */
 
 import {Client, ProjectInfo, SessionSettings, SSLOptions, UserStatic} from "./types/types"
@@ -218,8 +216,23 @@ export class Dashboard {
             }
 
             const categoryOptions = this.resolveOptions(path.join(path_src, category))
+
+            let categoryInfo
+            if(fs.existsSync(path.join(path_src, category, './__category_info.js'))){
+                categoryInfo = require(path.join(path_src, category, './__category_info.js'))
+                if(categoryInfo.id){
+                    categoryId = categoryInfo.id
+                    while(categoryId.includes(' '))
+                        categoryId = categoryId.replace(' ', '_')
+                    categoryData.id = categoryId
+                }
+            }
+
             this.categories.push({
                 id: categoryData.id,
+                showEnableDisableSwitch: categoryInfo?.showEnableDisableSwitch ?? false,
+                isEnabled: categoryInfo.isEnabled ?? function yes () {return true },
+                isDisabledGlobally: categoryInfo.isDisabledGlobally ?? function not () {return false},
                 name: categoryData.name,
                 options: categoryOptions
             })
@@ -304,7 +317,7 @@ export class Dashboard {
      * Resolve the options to use.
      */
     private resolveOptions (optionsPath: string) {
-        const files = fs.readdirSync(optionsPath).filter(file => !file.endsWith('.disabled.js') && file.endsWith('.js'))
+        const files = fs.readdirSync(optionsPath).filter(file => !file.endsWith('.disabled.js') && file.endsWith('.js') && !file.startsWith('__'))
         const options = []
         for(const Option of files) {
             let option = require(path.join(optionsPath, `./${Option}`))

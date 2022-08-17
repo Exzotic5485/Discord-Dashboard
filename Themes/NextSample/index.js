@@ -104,6 +104,16 @@ class Theme {
                     if(!memberOnGuild.permissions.has('ADMINISTRATOR'))
                         return reply.redirect('/dashboard?error=You are not an administrator')
 
+                    const guild_emoji_list = guild.emojis.cache.map(emoji => {
+                        return {
+                            id: emoji.id,
+                            name: emoji.name,
+                            url: `https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? 'gif' : 'png'}?size=32`,
+                            animated: emoji.animated,
+                        }
+                    })
+
+                    guild.guild_emoji_list = guild_emoji_list
                     request.guild = guild
                 },
                 handler: async (request, reply) => {
@@ -117,7 +127,7 @@ class Theme {
 
                 },
                 handler: async (request, reply) => {
-                    return next_app.render(request.raw, reply.raw, '/test', { hello: '404', user: request.session.user, navigation: this.#navigation })
+                    return next_app.render(request.raw, reply.raw, '/design_index', { hello: '404', user: request.session.user, navigation: this.#navigation })
                 },
             },
         ]
