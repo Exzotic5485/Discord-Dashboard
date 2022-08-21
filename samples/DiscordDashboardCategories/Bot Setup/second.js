@@ -4,7 +4,7 @@ const {TextInput} = require('../../../dist/index').FormTypes
 let temp = null
 
 module.exports = {
-    name: 'Prefix',
+    name: 'Prefix2',
     description: 'Change bot prefix easily',
     type: new TextInput()
         .setPlaceholder('Prefix')

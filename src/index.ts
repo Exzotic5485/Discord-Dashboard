@@ -234,7 +234,8 @@ export class Dashboard {
 
             this.categories.push({
                 id: categoryData.id,
-                showEnableDisableSwitch: categoryInfo?.showEnableDisableSwitch ?? false,
+                showEnableDisableSwitch: categoryInfo?.showEnableDisableSwitch == null ? false : categoryInfo?.showEnableDisableSwitch,
+                usePromiseResolveSystem: categoryInfo?.usePromiseResolveSystem == null ? true : categoryInfo.usePromiseResolveSystem,
                 isEnabled: categoryInfo.isEnabled ?? function yes () {return true },
                 isDisabledGlobally: categoryInfo.isDisabledGlobally ?? function not () {return false},
                 name: categoryData.name,

@@ -18,15 +18,24 @@ export const DisplayCategory = async ({ category, member, guild, client }: any) 
         }
     }
 
-    let Promises = []
-    for(let option of category.options){
-        Promises.push(new Promise((resolve,reject)=>{
-            DisplayOption({ category, additional, option, member, guild, client: client }).then(res=>{
-                resolve(res)
-            })
-        }))
+    let displayOptions: any = []
+
+    if(category.usePromiseResolveSystem){
+        let Promises = []
+        for(let option of category.options){
+            Promises.push(new Promise((resolve,reject)=>{
+                DisplayOption({ category, additional, option, member, guild, client: client }).then(res=>{
+                    resolve(res)
+                })
+            }))
+        }
+        displayOptions = await Promise.all(Promises)
+    }else{
+        for(let option of category.options){
+            const res = await DisplayOption({ category, additional, option, member, guild, client: client })
+            displayOptions.push(res)
+        }
     }
-    const displayOptions: any = await Promise.all(Promises)
 
     return {
         name: category.name,
