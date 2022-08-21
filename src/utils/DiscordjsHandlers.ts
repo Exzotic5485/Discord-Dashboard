@@ -16,5 +16,8 @@ export const GetMemberFromGuildByID = async ({ guild, member_id}: any) => {
 }
 
 export const VerifyUserPermissions = async ({ member, permissions }: { member: any, permissions: [PermissionsEnum] }) => {
+    for(const permission of permissions){
+        if(!member.permissions.has(permission))return false
+    }
     return true
 }
