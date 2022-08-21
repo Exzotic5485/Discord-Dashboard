@@ -1,8 +1,7 @@
 import { DiscordJsVersion } from "./DiscordjsHandlers"
-import _ from "lodash"
 
 export const DisplayOption = async ({ category, additional, option, member, guild, client }: any) => {
-    const optionResponse: any = _.cloneDeep(option)
+    const optionResponse: any = JSON.parse(JSON.stringify(option)) // to remove refference
     // CASE 1
     // shouldBeDisplayed not met (equals false)
     if(option.shouldBeDisplayed){
