@@ -4,6 +4,7 @@
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
+    "@types/lodash": "^4.14.184",
     "@types/node": "^18.0.6",
     "assert-diff": "^3.0.2",
     "axios-mock-adapter": "^1.21.2",

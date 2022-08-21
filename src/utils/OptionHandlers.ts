@@ -1,6 +1,8 @@
 import { DiscordJsVersion } from "./DiscordjsHandlers"
+import _ from "lodash"
 
 export const DisplayOption = async ({ category, additional, option, member, guild, client }: any) => {
+    const optionResponse: any = _.cloneDeep(option)
     // CASE 1
     // shouldBeDisplayed not met (equals false)
     if(option.shouldBeDisplayed){
@@ -11,8 +13,8 @@ export const DisplayOption = async ({ category, additional, option, member, guil
     // CASE 2
     // disabled on type-side
     if(option.type?.disabled?.bool == true) {
-        option.allowed = false
-        option.reason = option.type.disabled.reason
+        optionResponse.allowed = false
+        optionResponse.reason = option.type.disabled.reason
     }else{
         // CASE 3
         // prePermissionsCheck not met (!= null)
@@ -20,25 +22,26 @@ export const DisplayOption = async ({ category, additional, option, member, guil
         if(option.permissionsValidate){
             const permissionsValidate = await option.permissionsValidate({ member, guild })
             if(permissionsValidate) {
-                option.allowed = false
-                option.reason = permissionsValidate
+                optionResponse.allowed = false
+                optionResponse.reason = permissionsValidate
             }
         }
     }
 
     const tempValue = await option.get({ member, guild })
-    option.value = tempValue == null ? option.type.defaultValue : tempValue
+    optionResponse.value = (tempValue == null) ? option.type.defaultValue : tempValue
 
     if(additional.isDisabledGlobally){
-        option.allowed = false
-        option.reason = typeof(additional.isDisabledGlobally) === 'string' ? additional.isDisabledGlobally : 'Whole category is globally disabled'
+        optionResponse.allowed = false
+        optionResponse.reason = typeof(additional.isDisabledGlobally) === 'string' ? additional.isDisabledGlobally : 'Whole category is globally disabled'
     }
 
-    (option.allowed === null || option.allowed === undefined) && (option.allowed = true)
+    (optionResponse.allowed === null || optionResponse.allowed === undefined) && (optionResponse.allowed = true)
 
-    option.type.disabled = undefined
+    delete optionResponse.type.disabled
+    delete optionResponse.type.defaultValue
 
-    return { display: true, option }
+    return { display: true, option: optionResponse }
 
 }
 

@@ -41,6 +41,6 @@ export const DisplayCategory = async ({ category, member, guild, client }: any) 
         name: category.name,
         id: category.id,
         ...additional,
-        options: JSON.parse(JSON.stringify(displayOptions.filter((option: any)=>option.display != false)))
+        options: JSON.parse(JSON.stringify(displayOptions.filter((option: any)=>option.display != false).map((option:any)=>option.option)))
     }
 }
