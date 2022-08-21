@@ -18,23 +18,20 @@ export const DisplayCategory = async ({ category, member, guild, client }: any) 
         }
     }
 
-    let return_category: any = {
+    let Promises = []
+    for(let option of category.options){
+        Promises.push(new Promise((resolve,reject)=>{
+            DisplayOption({ category, additional, option, member, guild, client: client }).then(res=>{
+                resolve(res)
+            })
+        }))
+    }
+    const displayOptions: any = await Promise.all(Promises)
+
+    return {
         name: category.name,
         id: category.id,
         ...additional,
-        options: []
+        options: JSON.parse(JSON.stringify(displayOptions.filter((option: any)=>option.display != false)))
     }
-    
-    for(let option of category.options){
-        const option_validation = await DisplayOption({ category, additional, option, member, guild, client: client })
-        if(option_validation.display == false){
-            continue
-        }else{
-            option = option_validation.option
-        }
-
-        return_category.options.push(JSON.parse(JSON.stringify(option)))
-    }
-
-    return return_category
 }

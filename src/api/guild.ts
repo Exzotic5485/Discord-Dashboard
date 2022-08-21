@@ -22,11 +22,17 @@ export const router = ({ requiredPermissions, fastify, discordClient, categories
                 return reply.send({ error: true, message: "Required permissions not met" })
             }
 
-            let return_categories: any = []
+            let Promises = []
             for(const category of categories) {
-                const category_returned = await DisplayCategory({ category, member, guild, client: discordClient })
-                return_categories.push(category_returned)
+                Promises.push(new Promise((resolve,reject) => {
+                    DisplayCategory({ category, member, guild, client: discordClient }).then(res=>{
+                        resolve(res)
+                    })
+                }))
             }
+
+            let return_categories: any = await Promise.all(Promises)
+        
             return reply.send(return_categories)
         })
 
