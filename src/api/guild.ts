@@ -1,96 +1,45 @@
-export const router: (props: any)=>void = (props: { requiredPermissions: [string,number][], fastify: any, discordClient: any, categories: any }) => {
-    props.fastify.register((instance: any, opts: any, next: any)=>{
+import { AllowOnlyAuthorized } from "../utils/AuthHandlers"
+
+import { DisplayOption, CanChangeOption } from "../utils/OptionHandlers"
+import { DisplayCategory } from "../utils/CategoryHandlers"
+import { GetGuildByID, GetMemberFromGuildByID, VerifyUserPermissions } from "../utils/DiscordjsHandlers"
+
+export const router = ({ requiredPermissions, fastify, discordClient, categories }: any) => {
+    fastify.register((instance: any, opts: any, next: any)=>{
         instance.get('/:guild_id/settings', async (request: any, reply: any) => {
-            const member_id = request.session?.user?.id
-            if(!member_id) return reply.code(401).send({ error: 'You are not logged in' })
-            const guild = props.discordClient.guilds.cache.get(request.params.guild_id)
-            const member = guild.members.cache.get(member_id)
+            AllowOnlyAuthorized({ request, reply })
+            const guild = await GetGuildByID({ guild_id: request.params.guild_id, client: discordClient })
+            const member = await GetMemberFromGuildByID({ guild, member_id: request.session.user.id })
 
-            //if(!member.hasPermissions('MANAGE_GUILD')) return reply.code(403).send({ error: 'You do not have permission to manage this guild' })
-
-            let return_categories: any = [];
-
-            for(const category of props.categories) {
-                let additional: any = {
-                    isDisabledGlobally: (await category.isDisabledGlobally({ guild, member }))
-                }
-                if(!additional.isDisabledGlobally){
-                    additional = {
-                        ...additional,
-                        showEnableDisableSwitch: category.showEnableDisableSwitch,
-                    }
-                }
-                if(category.showEnableDisableSwitch === true && !additional.isDisabledGlobally){
-                    additional = {
-                        ...additional,
-                        isEnabled: (await category.isEnabled({ guild, member }))
-                    }
-                }
-                return_categories.push({
-                    name: category.name,
-                    id: category.id,
-                    ...additional,
-                    options: []
-                })
-                for(const option of category.options){
-                    // If should be displayed for user on guild (this one doesn't display option at all)
-                    if(option.shouldBeDisplayed){
-                        const display = await option.shouldBeDisplayed({ member, guild })
-                        if(display == false) continue
-                    }
-
-                    // If should be disabled for user on guild (this one displays error and blocks option if not met)
-                    if(option.type?.disabled?.bool == true) {
-                        // If is globally disabled with option type
-                        option.allowed = false
-                        option.reason = option.type.disabled.reason
-                    }else{
-                        // If is disabled for user with prePermissionsCheck
-                        if(option.permissionsValidate){
-                            const permissionsValidate = await option.permissionsValidate({ member, guild })
-                            if(permissionsValidate) {
-                                option.allowed = false
-                                option.reason = permissionsValidate
-                            }
-                        }
-                    }
-
-                    // Get actual value
-                    let tempValue = await option.get({ member, guild })
-                    option.value = tempValue == null ? option.type.defaultValue : tempValue
-
-                    // Delete unnecessary properties
-                    delete option.type.disabled
-
-                    // Overwrite allowed if category is globally disabled
-                    if(additional.isDisabledGlobally){
-                        option.allowed = false
-                        option.reason = typeof(additional.isDisabledGlobally) === 'string' ? additional.isDisabledGlobally : 'Whole category is globally disabled'
-                    }
-
-                    if(option.allowed === null || option.allowed === undefined) {
-                        option.allowed = true
-                    }
-
-                    // Add to return
-                    return_categories[return_categories.length-1].options.push(JSON.parse(JSON.stringify(option)))
-                }
+            const permissionsValidate = await VerifyUserPermissions({ member, permissions: requiredPermissions })
+            if(permissionsValidate == false){
+                return reply.send({ error: true, message: "Required permissions not met" })
             }
 
+            let return_categories: any = []
+            for(const category of categories) {
+                const category_returned = await DisplayCategory({ category, member, guild, client: discordClient })
+                return_categories.push(category_returned)
+            }
             return reply.send(return_categories)
         })
 
         instance.post('/:guild_id/settings', async (request: any, reply: any) => {
+            AllowOnlyAuthorized({ request, reply })
+
+            const guild = await GetGuildByID({ guild_id: request.params.guild_id, client: discordClient })
+            const member = await GetMemberFromGuildByID({ guild, member_id: request.session.user.id })
+
+            const permissionsValidate = await VerifyUserPermissions({ member, permissions: requiredPermissions })
+            if(permissionsValidate == false){
+                return reply.send({ error: true, message: "Required permissions not met" })
+            }
+
             const { settings } = request.body
             const errored_messages: object[] = []
 
-            const member_id = request.session?.user?.id
-            if(!member_id) return reply.code(401).send({ error: 'You are not logged in' })
-            const guild = props.discordClient.guilds.cache.get(request.params.guild_id)
-            const member = guild.members.cache.get(member_id)
-
             for(const category_body of settings){
-                const categoryData = props.categories.find((e:any)=>e.id === category_body.id)
+                const categoryData = categories.find((e:any)=>e.id === category_body.id)
                 for(const option_body of category_body.options){
                     const optionData = categoryData.options.find((e:any)=>e.id === option_body.id)
 
