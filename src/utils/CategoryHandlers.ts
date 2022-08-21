@@ -3,7 +3,7 @@ import { DisplayOption } from "./OptionHandlers"
 
 export const DisplayCategory = async ({ category, member, guild, client }: any) => {
     let additional: any = {
-        isDisabledGlobally: (await category.isDisabledGlobally({ guild, member }))
+        isDisabledGlobally: (await category.isDisabledGlobally({ guild, member })) == false ? undefined : true
     }
     if(!additional.isDisabledGlobally){
         additional = {
