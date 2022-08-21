@@ -3,8 +3,14 @@ import { AllowOnlyAuthorized } from "../utils/AuthHandlers"
 import { DisplayOption, CanChangeOption } from "../utils/OptionHandlers"
 import { DisplayCategory } from "../utils/CategoryHandlers"
 import { GetGuildByID, GetMemberFromGuildByID, VerifyUserPermissions } from "../utils/DiscordjsHandlers"
+import PermissionsEnum from "../utils/DiscordPermissions"
 
-export const router = ({ requiredPermissions, fastify, discordClient, categories }: any) => {
+export const router = ({ requiredPermissions, fastify, discordClient, categories }: {
+    requiredPermissions: [PermissionsEnum],
+    fastify: any,
+    discordClient: any,
+    categories: any
+}) => {
     fastify.register((instance: any, opts: any, next: any)=>{
         instance.get('/:guild_id/settings', async (request: any, reply: any) => {
             AllowOnlyAuthorized({ request, reply })

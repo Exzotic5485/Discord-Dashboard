@@ -21,6 +21,10 @@ import axios from 'axios'
 
 import {ErrorThrower} from "./utils/ErrorThrower"
 
+import { DiscordJsVersion } from "./utils/DiscordjsHandlers"
+
+import PermissionsEnum from "./utils/DiscordPermissions"
+
 /**
  * Discord-Dashboard Class
  * @example
@@ -33,17 +37,17 @@ import {ErrorThrower} from "./utils/ErrorThrower"
  *      .start()
  */
 export class Dashboard {
-    public engine: 'ejs' | 'next'
+    public engine: EnginesEnum
     /**
      * Constructor does not require any parameters.
      * Optional parameter is engine to use ('next' by default). Theme engine must be the same as the dashboard engine.
      *
      * Perform all options to set in the Dashboard by adding functions to the class (before using the start method).
      */
-    constructor(engine: 'ejs' | 'next') {
+    constructor(engine: EnginesEnum) {
         if(!engine)
             ErrorThrower('Engine is required. Pass it as the first and only class constructor parameter (supported engines are accessible from DBD.Engines).')
-        if(engine != 'ejs' && engine != 'next')
+        if(engine != EnginesEnum.EJS && engine != EnginesEnum.NEXT)
             ErrorThrower(`The engine must be either "ejs" or "next". Received "${engine}" which is not a valid supported engine.`)
         this.engine = engine
     }
@@ -70,8 +74,8 @@ export class Dashboard {
         secret: '',
     }
 
-    public requiredPermissions: [string,number][] = [
-        ['ADMINISTRATOR', 0x8],
+    public requiredPermissions: [PermissionsEnum] = [
+        PermissionsEnum.ADMINISTRATOR,
     ]
 
     private discordClient: any
@@ -95,10 +99,10 @@ export class Dashboard {
 
     /**
      * Set required permissions to use.
-     * @param {Array<Array<String, Number>>} permissions - An array of permissions to use (see DBD.Permissions).
+     * @param {Array<PermissionsEnum>} permissions - An array of permissions to use (see DBD.Permissions).
      * @returns {Dashboard} - The Dashboard instance.
      */
-    public setRequiredPermissions(permissions: [string,number][]) {
+    public setRequiredPermissions(permissions: [PermissionsEnum]) {
         this.requiredPermissions = permissions
         return this
     }
@@ -273,7 +277,7 @@ export class Dashboard {
             }
         }
 
-        if(this.engine == 'next') {
+        if(this.engine == EnginesEnum.NEXT) {
             if (this.dev) {
                 console.log('Dashboard is in development mode. Please note that the dashboard will not send statistics to Assistants Services.')
                 console.log('Also, each change in the theme pages source code will not be reflected in the dashboard after turning off development mode. You\'ll have to run the build command inside theme folder to build the changes into production environment.')
@@ -291,7 +295,7 @@ export class Dashboard {
                 port: this.port,
             })
             return this
-        }else if(this.engine == 'ejs') {
+        }else if(this.engine == EnginesEnum.EJS) {
             if (this.dev) {
                 console.log('Running on EJS engine in development mode. Please note that the dashboard will not send statistics to Assistants Services.')
             }
@@ -397,10 +401,10 @@ export class Dashboard {
      * Register the engine inside fastify.
      */
     private registerFastifyEngine () {
-        if(this.engine == 'next'){
+        if(this.engine == EnginesEnum.NEXT){
             this.theme.registerFastifyNext(this.fastify, this.dev)
             return
-        }else if(this.engine == 'ejs'){
+        }else if(this.engine == EnginesEnum.EJS){
             this.theme.registerFastifyEJS(this.fastify, this.dev)
             return
         }else{
@@ -562,13 +566,12 @@ export const FormTypes = {
     TextInput,
 }
 
-const EJS: 'ejs' = 'ejs'
-const NEXT: 'next' = 'next'
-
-export const Engines = {
-    EJS,
-    NEXT,
+enum EnginesEnum {
+    EJS = 'ejs',
+    NEXT = 'next',
 }
+
+export const Engines = EnginesEnum
 
 /**
  * @interface Permissions
@@ -613,46 +616,4 @@ export const Engines = {
  * @prop START_EMBEDDED_ACTIVITIES - Start embedded activities.
  * @prop MODERATE_MEMBERS - Moderate members.
  */
-export const DiscordPermissions = {
-    CREATE_INSTANT_INVITE: ['CREATE_INSTANT_INVITE', 0x1],
-    KICK_MEMBERS: ['KICK_MEMBERS', 0x2],
-    BAN_MEMBERS: ['BAN_MEMBERS', 0x4],
-    ADMINISTRATOR: ['ADMINISTRATOR', 0x8],
-    MANAGE_CHANNELS: ['MANAGE_CHANNELS', 0x10],
-    MANAGE_GUILD: ['MANAGE_GUILD', 0x20],
-    ADD_REACTIONS: ['ADD_REACTIONS', 0x40],
-    VIEW_AUDIT_LOG: ['VIEW_AUDIT_LOG', 0x80],
-    PRIORITY_SPEAKER: ['PRIORITY_SPEAKER', 0x100],
-    STREAM: ['STREAM', 0x200],
-    VIEW_CHANNEL: ['VIEW_CHANNEL', 0x400],
-    SEND_MESSAGES: ['SEND_MESSAGES', 0x800],
-    SEND_TTS_MESSAGES: ['SEND_TTS_MESSAGES', 0x1000],
-    MANAGE_MESSAGES: ['MANAGE_MESSAGES', 0x2000],
-    EMBED_LINKS: ['EMBED_LINKS', 0x4000],
-    ATTACH_FILES: ['ATTACH_FILES', 0x8000],
-    READ_MESSAGE_HISTORY: ['READ_MESSAGE_HISTORY', 0x10000],
-    MENTION_EVERYONE: ['MENTION_EVERYONE', 0x20000],
-    USE_EXTERNAL_EMOJIS: ['USE_EXTERNAL_EMOJIS', 0x40000],
-    VIEW_GUILD_INSIGHTS: ['VIEW_GUILD_INSIGHTS', 0x80000],
-    CONNECT: ['CONNECT', 0x100000],
-    SPEAK: ['SPEAK', 0x200000],
-    MUTE_MEMBERS: ['MUTE_MEMBERS', 0x400000],
-    DEAFEN_MEMBERS: ['DEAFEN_MEMBERS', 0x800000],
-    MOVE_MEMBERS: ['MOVE_MEMBERS', 0x1000000],
-    USE_VAD: ['USE_VAD', 0x2000000],
-    CHANGE_NICKNAME: ['CHANGE_NICKNAME', 0x4000000],
-    MANAGE_NICKNAMES: ['MANAGE_NICKNAMES', 0x8000000],
-    MANAGE_ROLES: ['MANAGE_ROLES', 0x10000000],
-    MANAGE_WEBHOOKS: ['MANAGE_WEBHOOKS', 0x20000000],
-    MANAGE_EMOJIS_AND_STICKERS: ['MANAGE_EMOJIS_AND_STICKERS', 0x40000000],
-    USE_APPLICATION_COMMANDS: ['USE_APPLICATION_COMMANDS', 0x80000000],
-    REQUEST_TO_SPEAK: ['REQUEST_TO_SPEAK', 0x100000000],
-    MANAGE_EVENTS: ['MANAGE_EVENTS', 0x200000000],
-    MANAGE_THREADS: ['MANAGE_THREADS', 0x400000000],
-    CREATE_PUBLIC_THREADS: ['CREATE_PUBLIC_THREADS', 0x800000000],
-    CREATE_PRIVATE_THREADS: ['CREATE_PRIVATE_THREADS', 0x1000000000],
-    USE_EXTERNAL_STICKERS: ['USE_EXTERNAL_STICKERS', 0x2000000000],
-    SEND_MESSAGES_IN_THREADS: ['SEND_MESSAGES_IN_THREADS', 0x4000000000],
-    START_EMBEDDED_ACTIVITIES: ['START_EMBEDDED_ACTIVITIES', 0x8000000000],
-    MODERATE_MEMBERS: ['MODERATE_MEMBERS', 0x10000000000]
-}
+export const DiscordPermissions = PermissionsEnum

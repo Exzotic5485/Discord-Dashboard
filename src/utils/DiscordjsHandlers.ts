@@ -1,4 +1,5 @@
 import { version } from 'discord.js'
+import PermissionsEnum from './DiscordPermissions'
 
 export const DiscordJsVersion = version.split('.')[0]
 
@@ -14,6 +15,6 @@ export const GetMemberFromGuildByID = async ({ guild, member_id}: any) => {
     return memberFound
 }
 
-export const VerifyUserPermissions = async ({ member, permissions }: any) => {
+export const VerifyUserPermissions = async ({ member, permissions }: { member: any, permissions: [PermissionsEnum] }) => {
     return true
 }

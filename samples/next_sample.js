@@ -27,7 +27,7 @@ new Dashboard(Engines.NEXT)
         accountToken: process.env.ASSISTANTS_SERVICES_ACCOUNT_TOKEN,
         projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID
     })
-    .setRequiredPermissions([DiscordPermissions.ADMINISTRATOR])
+    .setRequiredPermissions([ DiscordPermissions.ADMINISTRATOR, DiscordPermissions.CHANGE_NICKNAMES ])
     .setTheme(Theme)
     .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
     .setPort(process.env.PORT)
