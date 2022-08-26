@@ -1,9 +1,9 @@
 import React from 'react'
-import {createTheme, ThemeProvider} from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import {ThemeConfigWrapper} from "../context/ThemeContext";
-import PageContent from "../components/PageContent";
-import CardRounded from "../components/cards/CardRounded";
+import {createTheme, ThemeProvider} from "@mui/material/styles"
+import CssBaseline from "@mui/material/CssBaseline"
+import {ThemeConfigWrapper} from "../context/ThemeContext"
+import PageContent from "../components/PageContent"
+import CardRounded from "../components/cards/CardRounded"
 
 export async function getServerSideProps ({ query }) {
     return {
@@ -47,8 +47,6 @@ export default function GuildsList({
             },
         },
     })
-
-    console.log('ns', navigationSections)
 
     return <ThemeProvider theme={darkTheme}>
         <CssBaseline />

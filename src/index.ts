@@ -280,14 +280,14 @@ export class Dashboard {
      * @returns {Promise<Dashboard>} - The Dashboard instance.
      */
     public start = async () => {
-        const res = await axios.get('https://registry.npmjs.org/discord-dashboard/latest')
+       /* const res = await axios.get('https://registry.npmjs.org/discord-dashboard/latest')
         if(res.data?.version > this.version){
             console.log(`[Discord Dashboard v${this.version}] There is a new version of Discord Dashboard available. Please update.`)
             const this_version = await axios.get(`https://registry.npmjs.org/discord-dashboard/${this.version}`)
             if(this_version?.data?.deprecated){
                 ErrorThrower(`This version is deprecated. Please update the module.`)
             }
-        }
+        }*/
 
         this.AcsClient = new AcsClient({ account_access_token: this.project.accountToken, dbd_project_id: this.project.projectId })
         this.ACS_Identity = await this.AcsClient.login()

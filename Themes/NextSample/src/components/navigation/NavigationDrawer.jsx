@@ -13,11 +13,11 @@ export default function NavigationDrawer ({ navigation, navigationSections }) {
         <Toolbar style={{minHeight:'120px'}} />
         <div style={{width:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             {
-                navigationSections.map((section,idx)=>{
+                navigationSections?.map((section,idx)=>{
                     const sectionItems = navigation.filter(item=>item.section == section)
                     return <NavigationCategory idx={idx} title={section}>
                         {
-                            sectionItems.map((nav_item, idx) => {
+                            sectionItems?.map((nav_item, idx) => {
                                 return <NavigationItem
                                     idx={idx}
                                     title={nav_item.name}
