@@ -8,6 +8,8 @@ import {Client, ProjectInfo, SessionSettings, SSLOptions, UserStatic} from "./ty
 
 import {fastify as fastifyModule} from 'fastify'
 
+import colors from 'colors'
+
 import fastifySession from '@fastify/session'
 import fastifyCookie from "@fastify/cookie"
 import fastifyOauth2 from "@fastify/oauth2"
@@ -24,6 +26,8 @@ import {ErrorThrower} from "./utils/ErrorThrower"
 import { DiscordJsVersion } from "./utils/DiscordjsHandlers"
 
 import PermissionsEnum from "./utils/DiscordPermissions"
+
+import { AcsClient } from "./utils/AcsClient"
 
 /**
  * Discord-Dashboard Class
@@ -57,7 +61,10 @@ export class Dashboard {
     public dev: boolean = false
     private theme: any
 
-    private project: ProjectInfo | undefined
+    private project: ProjectInfo = {
+        accountToken: '',
+        projectId: ''
+    }
 
     private sessionStore: any
     private sessionSecret: string | undefined
@@ -85,6 +92,10 @@ export class Dashboard {
     private SSL: SSLOptions | undefined
 
     public version: string = require('../package.json').version
+
+    private AcsClient: any
+    private ACS_Identity: any
+    private LicenseStatus: any
 
     /**
      * @methodOf Dashboard
@@ -277,6 +288,19 @@ export class Dashboard {
                 ErrorThrower(`This version is deprecated. Please update the module.`)
             }
         }
+
+        this.AcsClient = new AcsClient({ account_access_token: this.project.accountToken, dbd_project_id: this.project.projectId })
+        this.ACS_Identity = await this.AcsClient.login()
+        this.LicenseStatus = await this.AcsClient.collectLicenseStatus()
+
+        colors.enable()
+        console.log(this.LicenseStatus.type == 'premium' ? "DISCORD-DASHBOARD PREMIUM ❤️".rainbow : "DISCORD-DASHBOARD FREE")
+        if(this.LicenseStatus.type == 'premium'){
+            console.log(`Date of next payment: ${new Date(new Date(this.LicenseStatus.active_until).getTime()-172800000).toISOString().substring(0, 10)}`.blue)
+            console.log(`Valid until: ${new Date(this.LicenseStatus.active_until).toISOString().substring(0, 10)}`.blue)
+            console.log('\n')
+        }
+        colors.disable()
 
         if(this.engine == EnginesEnum.NEXT) {
             if (this.dev) {
@@ -562,6 +586,8 @@ export class Dashboard {
  */
 
 import { TextInput } from './formtypes/TextInput'
+import { info } from "console"
+import { stringify } from "querystring"
 
 export const FormTypes = {
     TextInput,

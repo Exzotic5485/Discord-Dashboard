@@ -12,7 +12,7 @@ const ThemeOptions = {
 }
 
 class Theme {
-    codename = 'nxts'
+    codename = 'nextsample'
     name = 'Next Sample Theme'
     description = 'Sample Next.js (React) theme for Discord Dashboard v3'
     public_path = path.join(__dirname, 'public')
@@ -62,7 +62,7 @@ class Theme {
                 method: 'get',
                 url: '/',
                 name: 'Home',
-                icon: 'home',
+                icon: 'Home',
                 section: '',
                 preHandler: async (request, reply) => {
                     if(!request.session.user) {
@@ -79,6 +79,32 @@ class Theme {
                             navigation: this.#navigation,
                             guilds: request.session.guilds,
                         }
+                    )
+                },
+            },
+            {
+                method: 'get',
+                url: '/guilds',
+                name: 'Manage Guilds',
+                icon: 'Filter',
+                preHandler: async (request, reply) => {
+                    if(!request.session.user) {
+                        return reply.redirect('/auth')
+                    }
+                },
+                handler: async (request, reply) => {
+                    const guilds = request.session.guilds
+
+                    let navigationSections = []
+                    this.#navigation.forEach(nav_el=>{
+                        if(typeof(nav_el.section) == 'string' && !navigationSections.includes(nav_el.section))navigationSections.push(nav_el.section)
+                    })
+
+                    return next_app.render(
+                        request.raw,
+                        reply.raw,
+                        '/guilds_list',
+                        { user: request.session.user, navigation: this.#navigation, guilds, navigationSections }
                     )
                 },
             },
@@ -117,7 +143,12 @@ class Theme {
                     request.guild = guild
                 },
                 handler: async (request, reply) => {
-                    return next_app.render(request.raw, reply.raw, '/guild', { guild: request.guild, user: request.session.user, navigation: this.#navigation })
+                    let navigationSections = []
+                    this.#navigation.forEach(nav_el=>{
+                        if(typeof(nav_el.section) == 'string' && !navigationSections.includes(nav_el.section))navigationSections.push(nav_el.section)
+                    })
+
+                    return next_app.render(request.raw, reply.raw, '/guild', { guild: request.guild, user: request.session.user, navigation: this.#navigation, navigationSections })
                 },
             },
             {
@@ -127,7 +158,12 @@ class Theme {
 
                 },
                 handler: async (request, reply) => {
-                    return next_app.render(request.raw, reply.raw, '/design_index', { hello: '404', user: request.session.user, navigation: this.#navigation })
+                    let navigationSections = []
+                    this.#navigation.forEach(nav_el=>{
+                        if(typeof(nav_el.section) == 'string' && !navigationSections.includes(nav_el.section))navigationSections.push(nav_el.section)
+                    })
+
+                    return next_app.render(request.raw, reply.raw, '/design_index', { hello: '404', user: request.session.user, navigation: this.#navigation, navigationSections })
                 },
             },
         ]
@@ -135,10 +171,10 @@ class Theme {
         pages.forEach(page=>{
             if(page.icon){
                 this.#navigation.push({
-                    url: page.url,
-                    icon: page.icon,
-                    name: page.name,
-                    section: page.section,
+                    url: page.url || null,
+                    icon: page.icon || null,
+                    name: page.name || '',
+                    section: page.section || '',
                 })
             }
         })
@@ -146,11 +182,11 @@ class Theme {
         this.customPages.forEach(page=>{
             if(page.icon){
                 this.#navigation.push({
-                    url: page.url,
-                    icon: page.icon,
-                    name: page.name,
-                    section: page.section,
-                    components: page.components,
+                    url: page.url || null,
+                    icon: page.icon || null,
+                    name: page.name || '',
+                    section: page.section || '',
+                    components: page.components || [],
                 })
             }
         })

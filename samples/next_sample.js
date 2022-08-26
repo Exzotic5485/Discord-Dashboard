@@ -14,15 +14,14 @@ const { Dashboard, Engines, DiscordPermissions } = require('../dist/index')
 const DefaultTheme = require('../Themes/NextSample')
 const Theme = new DefaultTheme.Provider()
     .addCustomPage({
-        url: '/test',
-        components: [],
-        icon: 'home',
-        name: 'Test',
-        section: 'LoL',
+        url: '/privacy-policy',
+        icon: 'InfoSquare',
+        name: 'Privacy Policy',
+        section: 'Legal',
     })
 
 new Dashboard(Engines.NEXT)
-    .setDev(true)
+    .setDev(false)
     .registerProject({
         accountToken: process.env.ASSISTANTS_SERVICES_ACCOUNT_TOKEN,
         projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID
