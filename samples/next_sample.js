@@ -21,12 +21,12 @@ const Theme = new DefaultTheme.Provider()
     })
 
 new Dashboard(Engines.NEXT)
-    .setDev(false)
+    .setDev(true)
     .registerProject({
         accountToken: process.env.ASSISTANTS_SERVICES_ACCOUNT_TOKEN,
         projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID
     })
-    .setRequiredPermissions([ DiscordPermissions.ADMINISTRATOR, DiscordPermissions.CHANGE_NICKNAMES ])
+    .setRequiredPermissions([ DiscordPermissions.ADMINISTRATOR, DiscordPermissions.MANAGE_NICKNAMES ])
     .setTheme(Theme)
     .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
     .setPort(process.env.PORT)
@@ -50,7 +50,7 @@ new Dashboard(Engines.NEXT)
     })
     .setAdministrators(['778685361014046780'])
     .setFastifyUtilities([
-        [helmet, { contentSecurityPolicy: false, global: true }],
+       /* [helmet, { contentSecurityPolicy: false, global: true }],*/
     ])
     .start()
     .then((instance) => {

@@ -7,7 +7,7 @@ export default function NavigationCategory({ title, children, idx }) {
 
     return <div>
         {title && <p style={{textAlign:'center',color:themeConfig.colors.text.secondary}}><b>{title}</b></p>}
-        <div id={`navcat_${idx}`} style={{width:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+        <div style={{width:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             {children}
         </div>
     </div>

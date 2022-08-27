@@ -5,6 +5,8 @@ import {ThemeConfigWrapper} from "../context/ThemeContext"
 import PageContent from "../components/PageContent"
 import CardRounded from "../components/cards/CardRounded"
 
+import DashboardGuildsList from "../components/guilds_list/DashboardGuildsList"
+
 export async function getServerSideProps ({ query }) {
     return {
         props: {
@@ -48,11 +50,15 @@ export default function GuildsList({
         },
     })
 
+    console.log(user, guilds)
+
     return <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <ThemeConfigWrapper themeConfig={themeConfig}>
             <PageContent navigation={navigation} navigationSections={navigationSections}>
-                <CardRounded title={"Test Title"}/>
+                <CardRounded>
+                    <DashboardGuildsList guilds={guilds}/>
+                </CardRounded>
             </PageContent>
         </ThemeConfigWrapper>
     </ThemeProvider>

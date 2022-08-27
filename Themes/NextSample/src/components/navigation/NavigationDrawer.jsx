@@ -15,15 +15,15 @@ export default function NavigationDrawer ({ navigation, navigationSections }) {
             {
                 navigationSections?.map((section,idx)=>{
                     const sectionItems = navigation.filter(item=>item.section == section)
-                    return <NavigationCategory idx={idx} title={section}>
+                    return <NavigationCategory key={`navcat_${idx}`} title={section}>
                         {
                             sectionItems?.map((nav_item, idx) => {
                                 return <NavigationItem
-                                    idx={idx}
+                                    key={`navit_${idx}`}
                                     title={nav_item.name}
                                     icon={nav_item.icon}
                                     url={nav_item.url}
-                                    active={(router.asPath.split('?')[0] == nav_item.url || router.asPath.split('?')[0] == nav_item.url+'/')}
+                                    active={nav_item.active_match ? new RegExp(nav_item.active_match).test(router.asPath.split('?')[0]) : false}
                                 />
                             })
                         }

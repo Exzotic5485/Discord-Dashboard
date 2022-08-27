@@ -1,7 +1,6 @@
 import React from 'react'
 import Toolbar from "@mui/material/Toolbar"
 import IconButton from "@mui/material/IconButton"
-import MenuIcon from "@mui/icons-material/Menu"
 import AppBar from "@mui/material/AppBar"
 
 import { useThemeConfigContext } from "../../../context/ThemeContext"
@@ -26,7 +25,7 @@ export default function TopbarNav ({ drawerWidth, handleDrawerToggle, isMobile }
                 onClick={handleDrawerToggle}
                 sx={{ mr: 2, display: { sm: 'none' } }}
             >
-                <MenuIcon />
+                <a>M</a>
             </IconButton>
             {!isMobile() && <div style={{display:'flex', flexDirection: 'column'}}>
                 <a style={{

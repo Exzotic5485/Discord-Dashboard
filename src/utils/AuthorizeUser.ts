@@ -15,20 +15,24 @@ export default async function AuthorizeUser(_props: {oauth:any, props: any, toke
     let returnGuild = []
     for(const guild of Guilds){
         let doIt = true
-        for(let perm of props.requiredPermissions){
+        /*for(let perm of props.requiredPermissions){
             if(guild.permissions==null)guild.permissions = 0;
             if((guild.permissions & perm[1]) != perm[1]){
                 doIt = false
                 break
             }
-        }
+        }*/
         if(doIt){
+            try{
+                await props.discordClient.guilds.fetch(guild.id)
+            }catch{}
             returnGuild.push({
                 ...guild,
+                iconURL: guild.icon && `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`,
                 onGuild: Boolean(props.discordClient.guilds.cache.get(guild.id))
             })
         }
     }
-    request.session.guilds = returnGuild.sort(e=>e.onGuild?-1:1)
+    request.session.guilds = returnGuild
     return reply.redirect('/')
 }

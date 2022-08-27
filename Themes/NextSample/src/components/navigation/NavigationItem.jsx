@@ -13,7 +13,7 @@ export default function NavigationItem ({ title, active, icon, url, idx }) {
     const hoverRef = useRef(null)
     const isHover = useHover(hoverRef)
 
-    return <div id={`navit_${idx}`} onClick={()=>location.href = url} ref={hoverRef} style={{
+    return <div onClick={()=>location.href = url} ref={hoverRef} style={{
         cursor: isHover ? "pointer" : "default",
         width:'100%',
         display:'flex',

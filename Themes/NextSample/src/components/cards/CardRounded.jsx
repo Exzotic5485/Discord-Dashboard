@@ -1,7 +1,7 @@
 import React from 'react'
 import {useThemeConfigContext} from "../../context/ThemeContext"
 
-export default function CardRounded ({ title }) {
+export default function CardRounded ({ title, children }) {
     const themeConfig = useThemeConfigContext()
 
     return <div style={{
@@ -14,5 +14,6 @@ export default function CardRounded ({ title }) {
         paddingBottom: 20
     }}>
         <h1>{title}</h1>
+        {children}
     </div>
 }

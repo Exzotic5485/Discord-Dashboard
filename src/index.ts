@@ -81,7 +81,7 @@ export class Dashboard {
         secret: '',
     }
 
-    public requiredPermissions: [PermissionsEnum] = [
+    public requiredPermissions: PermissionsEnum[] = [
         PermissionsEnum.ADMINISTRATOR,
     ]
 
@@ -113,7 +113,7 @@ export class Dashboard {
      * @param {Array<PermissionsEnum>} permissions - An array of permissions to use (see DBD.Permissions).
      * @returns {Dashboard} - The Dashboard instance.
      */
-    public setRequiredPermissions(permissions: [PermissionsEnum]) {
+    public setRequiredPermissions(permissions: PermissionsEnum[]) {
         this.requiredPermissions = permissions
         return this
     }

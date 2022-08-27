@@ -15,7 +15,7 @@ class Theme {
     codename = 'nextsample'
     name = 'Next Sample Theme'
     description = 'Sample Next.js (React) theme for Discord Dashboard v3'
-    public_path = path.join(__dirname, 'public')
+    public_path = path.join(__dirname, 'theme-content')
     next_app
     next_handler
 
@@ -61,6 +61,7 @@ class Theme {
             {
                 method: 'get',
                 url: '/',
+                active_match: '^(\\/)$',
                 name: 'Home',
                 icon: 'Home',
                 section: '',
@@ -85,6 +86,7 @@ class Theme {
             {
                 method: 'get',
                 url: '/guilds',
+                active_match: '^(\\/guilds.?|\\/guild\\/.*)$',
                 name: 'Manage Guilds',
                 icon: 'Filter',
                 preHandler: async (request, reply) => {
@@ -94,6 +96,8 @@ class Theme {
                 },
                 handler: async (request, reply) => {
                     const guilds = request.session.guilds
+
+                    console.log(guilds)
 
                     let navigationSections = []
                     this.#navigation.forEach(nav_el=>{
@@ -172,6 +176,7 @@ class Theme {
             if(page.icon){
                 this.#navigation.push({
                     url: page.url || null,
+                    active_match: page.active_match ?? (page.url ?`^(\\/${page.url})$` : null),
                     icon: page.icon || null,
                     name: page.name || '',
                     section: page.section || '',
@@ -183,6 +188,7 @@ class Theme {
             if(page.icon){
                 this.#navigation.push({
                     url: page.url || null,
+                    active_match: page.active_match ?? (page.url ? `^(\\/${page.url})$` : null),
                     icon: page.icon || null,
                     name: page.name || '',
                     section: page.section || '',
