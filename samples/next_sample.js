@@ -3,7 +3,7 @@ const path = require('path')
 const dotenv = require('dotenv').config({path: path.join(__dirname, './.env')})
 
 const { Client, Intents } = require('discord.js')
-const client = new Client({ intents: [ Intents.FLAGS.GUILDS ] })
+const client = new Client({ intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS ] })
 
 const helmet = require('@fastify/helmet')
 

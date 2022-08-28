@@ -8,7 +8,7 @@ import Toolbar from "@mui/material/Toolbar"
 
 import {useThemeConfigContext} from "../context/ThemeContext"
 
-export default function PageContent({window, children, navigation, navigationSections}) {
+export default function PageContent({ window, children, navigation, navigationSections, motd }) {
     const themeConfig = useThemeConfigContext()
 
     const drawerWidth = 170
@@ -40,6 +40,7 @@ export default function PageContent({window, children, navigation, navigationSec
                     drawerWidth={drawerWidth}
                     handleDrawerToggle={handleDrawerToggle}
                     isMobile={isMobile}
+                    motd={motd}
                 />
                 <SidebarNav
                     drawerWidth={drawerWidth}

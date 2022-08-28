@@ -5,13 +5,58 @@ import { DisplayCategory } from "../utils/CategoryHandlers"
 import { GetGuildByID, GetMemberFromGuildByID, VerifyUserPermissions } from "../utils/DiscordjsHandlers"
 import PermissionsEnum from "../utils/DiscordPermissions"
 
-export const router = ({ requiredPermissions, fastify, discordClient, categories }: {
+export const router = ({ requiredPermissions, fastify, discordClient, categories}: {
     requiredPermissions: [PermissionsEnum],
     fastify: any,
     discordClient: any,
-    categories: any
+    categories: any,
 }) => {
     fastify.register((instance: any, opts: any, next: any)=>{
+        instance.get('/list', async (request: any, reply: any) => {
+            AllowOnlyAuthorized({ request, reply })
+
+            const guilds_c = await discordClient.guilds.cache
+
+            const guilds = JSON.parse(JSON.stringify(request.session.guilds || [])).map((guild:any)=>{
+                const bot_on_guild = guilds_c.get(guild.id)
+                if(bot_on_guild){
+                    let member_on_guild = bot_on_guild.members.cache.get(request.session.user.id)
+                    if(!member_on_guild){
+                        try{
+                            member_on_guild = bot_on_guild.members.fetch(request.session.user.id)
+                        }catch{}
+                    }
+                    guild.memberOnGuild = !!member_on_guild
+                }else{
+                    guild.memberOnGuild = true
+                }
+
+                guild.botOnGuild = !!bot_on_guild
+
+                guild.permissions = BigInt(guild.permissions)
+
+                for(const permission_required of requiredPermissions){
+                    if((guild.permissions & permission_required) != permission_required){
+                        return null
+                    }
+                }
+
+                delete guild.permissions
+
+                return guild
+            }).filter((g:any)=>g!=null&&g.memberOnGuild==true)
+
+            if(!guilds)return {
+                error: true,
+                message: "No guilds"
+            }
+
+            return {
+                error: false,
+                guilds
+            }
+        })
+
         instance.get('/:guild_id/settings', async (request: any, reply: any) => {
             AllowOnlyAuthorized({ request, reply })
             const guild = await GetGuildByID({ guild_id: request.params.guild_id, client: discordClient })

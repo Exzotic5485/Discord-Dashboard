@@ -32,7 +32,7 @@ export class AcsClient {
                     return res.data.you_are
                 }
             }
-        }catch(err){
+        }catch{
             ErrorThrower("Seems like Assistants Center Services are offline at the moment. Please try again later or contact us.")
         }
     }
@@ -49,7 +49,7 @@ export class AcsClient {
                     return res.data.license_status
                 }
             }
-        }catch(err){
+        }catch{
             ErrorThrower("Seems like Assistants Center Services are offline at the moment. Please try again later or contact us.")
         }
     }

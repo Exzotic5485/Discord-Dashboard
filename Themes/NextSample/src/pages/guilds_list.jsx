@@ -12,7 +12,6 @@ export async function getServerSideProps ({ query }) {
         props: {
             user: query.user || null,
             navigation: query.navigation || [],
-            guilds: query.guilds ? JSON.parse(JSON.stringify(query.guilds)) : [],
             navigationSections: query.navigationSections ? JSON.parse(JSON.stringify(query.navigationSections)) : []
         }
     }
@@ -21,7 +20,6 @@ export async function getServerSideProps ({ query }) {
 export default function GuildsList({
         user,
         navigation,
-        guilds,
         navigationSections,
         themeConfig={
             colors: {
@@ -50,14 +48,12 @@ export default function GuildsList({
         },
     })
 
-    console.log(user, guilds)
-
     return <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <ThemeConfigWrapper themeConfig={themeConfig}>
-            <PageContent navigation={navigation} navigationSections={navigationSections}>
+            <PageContent motd={"Select guild to manage"} navigation={navigation} navigationSections={navigationSections}>
                 <CardRounded>
-                    <DashboardGuildsList guilds={guilds}/>
+                    <DashboardGuildsList/>
                 </CardRounded>
             </PageContent>
         </ThemeConfigWrapper>

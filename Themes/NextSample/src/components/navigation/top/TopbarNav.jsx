@@ -6,7 +6,7 @@ import AppBar from "@mui/material/AppBar"
 import { useThemeConfigContext } from "../../../context/ThemeContext"
 import { useWindowSize } from "../../../hooks/useWindowsSize"
 
-export default function TopbarNav ({ drawerWidth, handleDrawerToggle, isMobile }) {
+export default function TopbarNav ({ drawerWidth, handleDrawerToggle, isMobile, motd }) {
     const themeConfig = useThemeConfigContext()
 
     return <AppBar
@@ -41,7 +41,7 @@ export default function TopbarNav ({ drawerWidth, handleDrawerToggle, isMobile }
                     color: themeConfig.colors.text.secondary,
                     marginTop:'-15px'
                 }}>
-                    Select guild to manage
+                    {motd || 'Default MOTD'}
                 </a>
             </div>}
         </Toolbar>

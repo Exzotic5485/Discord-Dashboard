@@ -61,6 +61,14 @@ export class Dashboard {
     public dev: boolean = false
     private theme: any
 
+    public botInvite: {
+        permissions: number | string,
+        scopes: string[]
+    } = {
+        permissions: 8,
+        scopes: ['bot', 'applications.commands']
+    }
+
     private project: ProjectInfo = {
         accountToken: '',
         projectId: ''
@@ -201,6 +209,7 @@ export class Dashboard {
      */
     public setDiscordClient (client: any) {
         this.discordClient = client
+
         return this
     }
 
@@ -288,6 +297,8 @@ export class Dashboard {
                 ErrorThrower(`This version is deprecated. Please update the module.`)
             }
         }*/
+
+        await this.discordClient.guilds.fetch()
 
         this.AcsClient = new AcsClient({ account_access_token: this.project.accountToken, dbd_project_id: this.project.projectId })
         this.ACS_Identity = await this.AcsClient.login()
@@ -490,14 +501,14 @@ export class Dashboard {
                 auth: fastifyOauth2.DISCORD_CONFIGURATION
             },
             startRedirectPath: '/auth',
-            callbackUri: 'http://localhost:3000/api/auth/callback',
+            callbackUri: 'http://localhost:3001/api/auth/callback',
         })
     }
 
     /*
      * Init Discord Dashboard API.
      */
-    private initFastifyApi () {
+    private initFastifyRoutes () {
         ApiRouter.router(this)
     }
 
@@ -524,7 +535,7 @@ export class Dashboard {
 
         this.registerFastifyStatic()
         this.registerFastifyOAuth2()
-        this.initFastifyApi()
+        this.initFastifyRoutes()
         await this.initFastifyThemePages()
 
         return fastify
