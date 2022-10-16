@@ -1,5 +1,5 @@
 const {TextInput} = require('../../../dist/index').FormTypes
-const {TextInputManager, TextInputObjects} = require('../../../Themes/KardexTheme').ThemeOptions
+/*const {TextInputManager, TextInputObjects} = require('../../../Themes/NextSample').ThemeOptions*/
 
 let temp = null
 
@@ -15,33 +15,33 @@ module.exports = {
         })
         .setMinLength(1)
         .setMaxLength(10),
-    themeOptions: new TextInputManager()
+   /* themeOptions: new TextInputManager()
         .useEmojiPicker(true)
         .useCustomStyle(TextInputObjects.optionContainer, {
-            /*backgroundColor: '#ff0000',*/
+            backgroundColor: '#ff0000',
         })
         .useIconLeft('bi bi-person')
-        .useColMd(12),
+        .useColMd(12),*/
     // dont display at all
     shouldBeDisplayed: async ({member, guild}) => {
         return true
     },
     // display with error
-    permissionsValidate: async ({ member }) => {
+    permissionsValidate: async ({ member, guild }) => {
         const blacklisted = false
         if(blacklisted)return "You are blacklisted from this option"
 
         return null
     },
     // validate after submit before saving
-    serverSideValidation: async ({ newData }) => {
+    serverSideValidation: async (newData, { member, guild }) => {
         if(newData=='kurwa')return "Prefix cannot be 'kurwa'"
         return null
     },
     get: async ({ member, guild })=>{
         return temp
     },
-    set: async ({ member, guild, newData })=>{
+    set: async (newData, { member, guild })=>{
         temp = newData
     }
 }

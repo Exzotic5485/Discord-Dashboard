@@ -1,64 +1,102 @@
-export const router: (props: any)=>void = (props: { requiredPermissions: [string,number][], fastify: any, discordClient: any, categories: any }) => {
-    props.fastify.register((instance: any, opts: any, next: any)=>{
-        instance.get('/:guild_id/settings', async (request: any, reply: any) => {
-            const member_id = request.session?.user?.id
-            if(!member_id) return reply.code(401).send({ error: 'You are not logged in' })
-            const guild = props.discordClient.guilds.cache.get(request.params.guild_id)
-            const member = guild.members.cache.get(member_id)
+import { AllowOnlyAuthorized } from "../utils/AuthHandlers"
 
-            //if(!member.hasPermissions('MANAGE_GUILD')) return reply.code(403).send({ error: 'You do not have permission to manage this guild' })
+import { DisplayOption, CanChangeOption } from "../utils/OptionHandlers"
+import { DisplayCategory } from "../utils/CategoryHandlers"
+import { GetGuildByID, GetMemberFromGuildByID, VerifyUserPermissions } from "../utils/DiscordjsHandlers"
+import PermissionsEnum from "../utils/DiscordPermissions"
 
-            let return_categories: any = [];
+export const router = ({ requiredPermissions, fastify, discordClient, categories}: {
+    requiredPermissions: [PermissionsEnum],
+    fastify: any,
+    discordClient: any,
+    categories: any,
+}) => {
+    fastify.register((instance: any, opts: any, next: any)=>{
+        instance.get('/list', async (request: any, reply: any) => {
+            AllowOnlyAuthorized({ request, reply })
 
-            for(const category of props.categories) {
-                return_categories.push({
-                    name: category.name,
-                    id: category.id,
-                    options: []
-                })
-                for(const option of category.options){
-                    // If should be displayed for user on guild (this one doesn't display option at all)
-                    if(option.shouldBeDisplayed){
-                        const display = await option.shouldBeDisplayed({ member, guild })
-                        if(display == false) continue
+            const guilds_c = await discordClient.guilds.cache
+
+            const guilds = JSON.parse(JSON.stringify(request.session.guilds || [])).map((guild:any)=>{
+                const bot_on_guild = guilds_c.get(guild.id)
+                if(bot_on_guild){
+                    let member_on_guild = bot_on_guild.members.cache.get(request.session.user.id)
+                    if(!member_on_guild){
+                        try{
+                            member_on_guild = bot_on_guild.members.fetch(request.session.user.id)
+                        }catch{}
                     }
-
-                    // If should be disabled for user on guild (this one displays error and blocks option if not met)
-                    if(option.type?.disabled?.bool == true) {
-                        // If is globally disabled with option type
-                        option.allowed = false
-                        option.reason = option.type.disabled.reason
-                    }else{
-                        // If is disabled for user with prePermissionsCheck
-                        if(option.permissionsValidate){
-                            const permissionsValidate = await option.permissionsValidate({ member, guild })
-                            if(permissionsValidate) {
-                                option.allowed = false
-                                option.reason = permissionsValidate
-                            }
-                        }
-                    }
-
-                    // Get actual value
-                    let tempValue = await option.get({ member, guild })
-                    option.value = tempValue == null ? option.type.defaultValue : tempValue
-
-                    // Delete unnecessary properties
-                    delete option.type.disabled
-
-                    // Add to return
-                    return_categories[return_categories.length-1].options.push(JSON.parse(JSON.stringify(option)))
+                    guild.memberOnGuild = !!member_on_guild
+                }else{
+                    guild.memberOnGuild = true
                 }
+
+                guild.botOnGuild = !!bot_on_guild
+
+                guild.permissions = BigInt(guild.permissions)
+
+                for(const permission_required of requiredPermissions){
+                    if((guild.permissions & permission_required) != permission_required){
+                        return null
+                    }
+                }
+
+                delete guild.permissions
+
+                return guild
+            }).filter((g:any)=>g!=null&&g.memberOnGuild==true)
+
+            if(!guilds)return {
+                error: true,
+                message: "No guilds"
             }
 
+            return {
+                error: false,
+                guilds
+            }
+        })
+
+        instance.get('/:guild_id/settings', async (request: any, reply: any) => {
+            AllowOnlyAuthorized({ request, reply })
+            const guild = await GetGuildByID({ guild_id: request.params.guild_id, client: discordClient })
+            const member = await GetMemberFromGuildByID({ guild, member_id: request.session.user.id })
+
+            const permissionsValidate = await VerifyUserPermissions({ member, permissions: requiredPermissions })
+            if(permissionsValidate == false){
+                return reply.send({ error: true, message: "Required permissions not met" })
+            }
+
+            let Promises = []
+            for(const category of categories) {
+                Promises.push(new Promise((resolve,reject) => {
+                    DisplayCategory({ category, member, guild, client: discordClient }).then(res=>{
+                        resolve(res)
+                    })
+                }))
+            }
+
+            let return_categories: any = await Promise.all(Promises)
+        
             return reply.send(return_categories)
         })
 
         instance.post('/:guild_id/settings', async (request: any, reply: any) => {
+            AllowOnlyAuthorized({ request, reply })
+
+            const guild = await GetGuildByID({ guild_id: request.params.guild_id, client: discordClient })
+            const member = await GetMemberFromGuildByID({ guild, member_id: request.session.user.id })
+
+            const permissionsValidate = await VerifyUserPermissions({ member, permissions: requiredPermissions })
+            if(permissionsValidate == false){
+                return reply.send({ error: true, message: "Required permissions not met" })
+            }
+
             const { settings } = request.body
             const errored_messages: object[] = []
+
             for(const category_body of settings){
-                const categoryData = props.categories.find((e:any)=>e.id === category_body.id)
+                const categoryData = categories.find((e:any)=>e.id === category_body.id)
                 for(const option_body of category_body.options){
                     const optionData = categoryData.options.find((e:any)=>e.id === option_body.id)
 
@@ -81,13 +119,13 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
 
                     // TEST: If should be displayed for user on guild
                     if(optionData.shouldBeDisplayed){
-                        const display = await optionData.shouldBeDisplayed({  })
+                        const display = await optionData.shouldBeDisplayed({ guild, member })
                         if(display == false) continue
                     }
 
                     //  TEST: If is disabled for user with prePermissionsCheck
                     if(optionData.permissionsValidate){
-                        const permissionsValidate = await optionData.permissionsValidate({  })
+                        const permissionsValidate = await optionData.permissionsValidate({ guild, member })
                         if(permissionsValidate) {
                             errored_messages.push({
                                 category: {
@@ -105,7 +143,7 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
                     }
 
                     // ServerSide Validation
-                    const validated_error = await optionData.serverSideValidation({newData:option_body.newData})
+                    const validated_error = await optionData.serverSideValidation(option_body.newData, { guild, member })
                     if(validated_error){
                         errored_messages.push({
                             category: {
@@ -122,7 +160,7 @@ export const router: (props: any)=>void = (props: { requiredPermissions: [string
                     }
 
                     // All test passed, set new value
-                    await optionData.set({newData: option_body.value})
+                    await optionData.set(option_body.value, { guild, member })
                 }
             }
             return reply.send({error:false,errored_messages})

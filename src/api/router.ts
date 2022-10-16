@@ -1,11 +1,19 @@
+import PermissionsEnum from '../utils/DiscordPermissions'
 import * as AuthRoute from './auth'
 import * as GuildRoute from './guild'
 
-export const router: (props: any)=>void = (props: { requiredPermissions: [string,number][], fastify: any, discordClient: any, categories: any }) => {
+export const router = (props: any) => {
     AuthRoute.router(props)
     GuildRoute.router(props)
     props.fastify.get('/api/*', async (request: any, reply: any) => {
         return { error: true, code: 404, message: 'Endpoint not found' }
+    })
+
+    props.fastify.get('/invite', async(request: any, reply: any) => {
+        const { guild_id } = request.query
+        return reply.redirect(
+            `https://discord.com/oauth2/authorize?client_id=${props.client.id}&permissions=${props.botInvite.permissions}&scope=${props.botInvite.scopes.join(' ')}&guild_id=${guild_id}&redirect_uri=http://localhost:3000/api/auth/callback&response_type=code`
+        )
     })
 
     props.fastify.get('/creators', async (request: any, reply: any) => {

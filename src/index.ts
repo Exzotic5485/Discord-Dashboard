@@ -1,14 +1,14 @@
 /**
  * @file index.ts
- * @title Discord-Dashboard Source Code
  * @author Assistants Center
  * @license CC BY-NC-SA 4.0
- * @version 3.0.0
  */
 
 import {Client, ProjectInfo, SessionSettings, SSLOptions, UserStatic} from "./types/types"
 
 import {fastify as fastifyModule} from 'fastify'
+
+import colors from 'colors'
 
 import fastifySession from '@fastify/session'
 import fastifyCookie from "@fastify/cookie"
@@ -23,29 +23,17 @@ import axios from 'axios'
 
 import {ErrorThrower} from "./utils/ErrorThrower"
 
-/**
- * Discord-Dashboard Class
- * @example
- * const DBD = require('discord-dashboard')
- *
- * const Dashboard = new DBD.Dashboard(DBD.Engines.NEXT)
- *      .setDev(true)
- *      .setPort(3000)
- *      // ...
- *      .start()
- */
+import PermissionsEnum from "./utils/DiscordPermissions"
+
+import { AcsClient } from "./utils/AcsClient"
+
 export class Dashboard {
-    public engine: 'ejs' | 'next'
-    /**
-     * Constructor does not require any parameters.
-     * Optional parameter is engine to use ('next' by default). Theme engine must be the same as the dashboard engine.
-     *
-     * Perform all options to set in the Dashboard by adding functions to the class (before using the start method).
-     */
-    constructor(engine: 'ejs' | 'next') {
+    public engine: EnginesEnum
+
+    constructor(engine: EnginesEnum) {
         if(!engine)
             ErrorThrower('Engine is required. Pass it as the first and only class constructor parameter (supported engines are accessible from DBD.Engines).')
-        if(engine != 'ejs' && engine != 'next')
+        if(engine != EnginesEnum.EJS && engine != EnginesEnum.NEXT)
             ErrorThrower(`The engine must be either "ejs" or "next". Received "${engine}" which is not a valid supported engine.`)
         this.engine = engine
     }
@@ -55,7 +43,18 @@ export class Dashboard {
     public dev: boolean = false
     private theme: any
 
-    private project: ProjectInfo | undefined
+    public botInvite: {
+        permissions: number | string,
+        scopes: string[]
+    } = {
+        permissions: 8,
+        scopes: ['bot', 'applications.commands']
+    }
+
+    private project: ProjectInfo = {
+        accountToken: '',
+        projectId: ''
+    }
 
     private sessionStore: any
     private sessionSecret: string | undefined
@@ -72,8 +71,8 @@ export class Dashboard {
         secret: '',
     }
 
-    public requiredPermissions: [string,number][] = [
-        ['ADMINISTRATOR', 0x8],
+    public requiredPermissions: PermissionsEnum[] = [
+        PermissionsEnum.ADMINISTRATOR,
     ]
 
     private discordClient: any
@@ -84,52 +83,30 @@ export class Dashboard {
 
     public version: string = require('../package.json').version
 
-    /**
-     * @methodOf Dashboard
-     * Define if it's a development environment. If it's a development environment, it will use the nextjs dev server and won't send statistics to Assistants Services.
-     * @param {boolean} dev - If true, the dashboard will be in development mode.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
+    private AcsClient: any
+    private ACS_Identity: any
+    private LicenseStatus: any
+
     public setDev(dev: boolean) {
         this.dev = dev
         return this
     }
 
-    /**
-     * Set required permissions to use.
-     * @param {Array<Array<String, Number>>} permissions - An array of permissions to use (see DBD.Permissions).
-     * @returns {Dashboard} - The Dashboard instance.
-     */
-    public setRequiredPermissions(permissions: [string,number][]) {
+    public setRequiredPermissions(permissions: PermissionsEnum[]) {
         this.requiredPermissions = permissions
         return this
     }
 
-    /**
-     * Set the Discord client OAuth2 credentials to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setClientCredentials (clientData: Client) {
         this.client = clientData
         return this
     }
 
-    /**
-     * Register the project with the Assistants Services Discord Dashboard Project.
-     * @param {string} [info.accountToken] - The account token to use.
-     * @param {string} [info.projectId] - The project id to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public registerProject(projectInfo: ProjectInfo) {
         this.project = projectInfo
         return this
     }
 
-    /**
-     * @methodOf Dashboard
-     * @description Set the theme to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setTheme(theme: any) {
         if(theme.engine != this.engine)
             ErrorThrower(`${theme.name} doesn't support "${this.engine}" engine. Please use "${theme.engine}" engine.`)
@@ -137,21 +114,11 @@ export class Dashboard {
         return this
     }
 
-    /**
-     * @methodOf Dashboard
-     * @description Set the port to use.
-     * @param {number} port - The port to use for the dashboard.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setPort(port: number) {
         this.port = port
         return this
     }
 
-    /**
-     * Set the session config to use.
-     *  @returns {Dashboard} - The Dashboard instance.
-     */
     public setSession( sessionSettings: SessionSettings ) {
         sessionSettings = Object.assign({
             store: (fastifySession: any)=>fastifySession.memory,
@@ -167,10 +134,6 @@ export class Dashboard {
         return this
     }
 
-    /**
-     * Set the static config to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setStatic(staticConfig: UserStatic) {
         staticConfig = Object.assign({
             url: '/static',
@@ -181,29 +144,17 @@ export class Dashboard {
         return this
     }
 
-    /**
-     * Set the Discord.js client to use.
-     * @param client - The Discord.js client.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setDiscordClient (client: any) {
         this.discordClient = client
+
         return this
     }
 
-    /**
-     * Set SSL options.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setSSL (sslInfo: SSLOptions) {
         this.SSL = sslInfo
         return this
     }
 
-    /**
-     * Set the options folder to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setOptionsFolder (path_src: string) {
         const categories = fs.readdirSync(path_src)
         for(const category of categories) {
@@ -218,8 +169,24 @@ export class Dashboard {
             }
 
             const categoryOptions = this.resolveOptions(path.join(path_src, category))
+
+            let categoryInfo
+            if(fs.existsSync(path.join(path_src, category, './__category_info.js'))){
+                categoryInfo = require(path.join(path_src, category, './__category_info.js'))
+                if(categoryInfo.id){
+                    categoryId = categoryInfo.id
+                    while(categoryId.includes(' '))
+                        categoryId = categoryId.replace(' ', '_')
+                    categoryData.id = categoryId
+                }
+            }
+
             this.categories.push({
                 id: categoryData.id,
+                showEnableDisableSwitch: categoryInfo?.showEnableDisableSwitch == null ? false : categoryInfo?.showEnableDisableSwitch,
+                usePromiseResolveSystem: categoryInfo?.usePromiseResolveSystem == null ? true : categoryInfo.usePromiseResolveSystem,
+                isEnabled: categoryInfo.isEnabled ?? function yes () {return true },
+                isDisabledGlobally: categoryInfo.isDisabledGlobally ?? function not () {return false},
                 name: categoryData.name,
                 options: categoryOptions
             })
@@ -228,30 +195,18 @@ export class Dashboard {
         return this
     }
 
-    /**
-     * Set the administrators to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setAdministrators (administrators: string[]) {
         this.administrators = administrators
         return this
     }
 
-    /**
-     * Set the fastify utilities to use.
-     * @returns {Dashboard} - The Dashboard instance.
-     */
     public setFastifyUtilities (fastifyUtilities: any[] = []) {
         this.fastifyUtilities = fastifyUtilities
         return this
     }
 
-    /**
-     * Start the dashboard.
-     * @returns {Promise<Dashboard>} - The Dashboard instance.
-     */
     public start = async () => {
-        const res = await axios.get('https://registry.npmjs.org/discord-dashboard/latest')
+       const res = await axios.get('https://registry.npmjs.org/discord-dashboard/latest')
         if(res.data?.version > this.version){
             console.log(`[Discord Dashboard v${this.version}] There is a new version of Discord Dashboard available. Please update.`)
             const this_version = await axios.get(`https://registry.npmjs.org/discord-dashboard/${this.version}`)
@@ -260,7 +215,22 @@ export class Dashboard {
             }
         }
 
-        if(this.engine == 'next') {
+        await this.discordClient.guilds.fetch()
+
+        this.AcsClient = new AcsClient({ account_access_token: this.project.accountToken, dbd_project_id: this.project.projectId })
+        this.ACS_Identity = await this.AcsClient.login()
+        this.LicenseStatus = await this.AcsClient.collectLicenseStatus()
+
+        colors.enable()
+        console.log(this.LicenseStatus.type == 'premium' ? "DISCORD-DASHBOARD PREMIUM ❤️".rainbow : "DISCORD-DASHBOARD FREE")
+        if(this.LicenseStatus.type == 'premium'){
+            console.log(`Date of next payment: ${new Date(new Date(this.LicenseStatus.active_until).getTime()-172800000).toISOString().substring(0, 10)}`.blue)
+            console.log(`Valid until: ${new Date(this.LicenseStatus.active_until).toISOString().substring(0, 10)}`.blue)
+            console.log('\n')
+        }
+        colors.disable()
+
+        if(this.engine == EnginesEnum.NEXT) {
             if (this.dev) {
                 console.log('Dashboard is in development mode. Please note that the dashboard will not send statistics to Assistants Services.')
                 console.log('Also, each change in the theme pages source code will not be reflected in the dashboard after turning off development mode. You\'ll have to run the build command inside theme folder to build the changes into production environment.')
@@ -278,7 +248,7 @@ export class Dashboard {
                 port: this.port,
             })
             return this
-        }else if(this.engine == 'ejs') {
+        }else if(this.engine == EnginesEnum.EJS) {
             if (this.dev) {
                 console.log('Running on EJS engine in development mode. Please note that the dashboard will not send statistics to Assistants Services.')
             }
@@ -299,12 +269,8 @@ export class Dashboard {
         }
     }
 
-
-    /*
-     * Resolve the options to use.
-     */
     private resolveOptions (optionsPath: string) {
-        const files = fs.readdirSync(optionsPath).filter(file => !file.endsWith('.disabled.js') && file.endsWith('.js'))
+        const files = fs.readdirSync(optionsPath).filter(file => !file.endsWith('.disabled.js') && file.endsWith('.js') && !file.startsWith('__'))
         const options = []
         for(const Option of files) {
             let option = require(path.join(optionsPath, `./${Option}`))
@@ -342,9 +308,6 @@ export class Dashboard {
         return options
     }
 
-    /*
-     * Verify options list is unique and valid.
-     */
     private verifyOptions () {
         const categories = this.categories
         let categoriesIds: string[] = []
@@ -371,23 +334,17 @@ export class Dashboard {
         }
     }
 
-    /*
-     * Prepare the next app.
-     */
     private prepareNext = async () => {
         const { next_app, next_handler } = this.theme.initNext(this.dev)
         await next_app.prepare()
         return { next_app, next_handler }
     }
 
-    /*
-     * Register the engine inside fastify.
-     */
     private registerFastifyEngine () {
-        if(this.engine == 'next'){
+        if(this.engine == EnginesEnum.NEXT){
             this.theme.registerFastifyNext(this.fastify, this.dev)
             return
-        }else if(this.engine == 'ejs'){
+        }else if(this.engine == EnginesEnum.EJS){
             this.theme.registerFastifyEJS(this.fastify, this.dev)
             return
         }else{
@@ -395,9 +352,6 @@ export class Dashboard {
         }
     }
 
-    /*
-     * Register the fastify session plugin with fastify cookies.
-     */
     private registerFastifySession (fastify: any) {
         fastify.register(fastifyCookie)
         fastify.register(fastifySession, {
@@ -409,9 +363,6 @@ export class Dashboard {
         })
     }
 
-    /*
-     * Register the fastify static (for module, theme, and user).
-     */
     private registerFastifyStatic () {
         this.fastify.register(require('@fastify/static'), {
             root: path.join(__dirname, 'public'),
@@ -433,9 +384,6 @@ export class Dashboard {
         }
     }
 
-    /*
-     * Register the fastify oauth2 plugin with the Discord client OAuth2 credentials.
-     */
     private registerFastifyOAuth2 () {
         this.fastify.register(fastifyOauth2, {
             name: 'discordOAuth2',
@@ -452,16 +400,10 @@ export class Dashboard {
         })
     }
 
-    /*
-     * Init Discord Dashboard API.
-     */
-    private initFastifyApi () {
+    private initFastifyRoutes () {
         ApiRouter.router(this)
     }
 
-    /*
-     * Init theme pages.
-     */
     private initFastifyThemePages = async () => {
         const ThemePages = await this.theme.getPages({ ...this })
         for (const page of ThemePages) {
@@ -474,74 +416,17 @@ export class Dashboard {
         }
     }
 
-    /*
-     * Prepare the fastify app.
-     */
     private prepareFastify = async () => {
         const fastify = this.fastify
 
         this.registerFastifyStatic()
         this.registerFastifyOAuth2()
-        this.initFastifyApi()
+        this.initFastifyRoutes()
         await this.initFastifyThemePages()
 
         return fastify
     }
 }
-
-/**
- * @typedef OptionGetterOptions
- * @property {object} guild - The guild object.
- * @property {object} user - The user object.
- */
-
-/**
- * @typedef OptionSetterOptions
- * @property {object} guild - The guild object.
- * @property {object} user - The user object.
- * @property newData - The new data to save.
- */
-
-/**
- * Set the options for an option on a guild.
- *
- * @callback OptionSetter
- * @param {OptionSetterOptions} options - The options.
- */
-
-/**
- * Get the options for an option on a guild.
- *
- * @callback OptionGetter
- * @param {OptionGetterOptions} - The options.
- */
-
-/**
- * Discord-Dashboard option file structure.
- *
- * @example
- * const {TextInput} = require('discord-dashboard').FormTypes
- * const {TextInputOptions} = require('theme-module').ThemeOptions
- *
- * module.exports = {
- *      name: 'Language',
- *      description: 'The language of the bot.',
- *      type: new TextInput()
- *                  .setDefaultValue('!'),
- *      themeOptions: new TextInputOptions()
- *                          .setColor('#ff0000')
- *                          .setBackgroundColor('#ff0000'),
- *      set: async ()=>{},
- *      get: async ()=>{}
- * }
- *
- * @property {string} name - The name of the option.
- * @property {string} description - The description of the option.
- * @property {any} type - The type of the option.
- * @property {OptionSetter} set - The function to set the option value.
- * @property {OptionGetter} get - The function to get the option value.
- * @interface [Option Structure]
- */
 
 import { TextInput } from './formtypes/TextInput'
 
@@ -549,97 +434,11 @@ export const FormTypes = {
     TextInput,
 }
 
-const EJS: 'ejs' = 'ejs'
-const NEXT: 'next' = 'next'
-
-export const Engines = {
-    EJS,
-    NEXT,
+enum EnginesEnum {
+    EJS = 'ejs',
+    NEXT = 'next',
 }
 
-/**
- * @interface Permissions
- * @description Discord permissions flags.
- *
- * @prop CREATE_INSTANT_INVITE - Create instant invites.
- * @prop KICK_MEMBERS - Kick members.
- * @prop BAN_MEMBERS - Ban members.
- * @prop ADMINISTRATOR - Administrator permissions.
- * @prop MANAGE_CHANNELS - Manage channels.
- * @prop MANAGE_GUILD - Manage the guild.
- * @prop ADD_REACTIONS - Add reactions.
- * @prop VIEW_AUDIT_LOG - View audit logs.
- * @prop VIEW_CHANNEL - View channels.
- * @prop SEND_MESSAGES - Send messages.
- * @prop SEND_TTS_MESSAGES - Send TTS messages.
- * @prop MANAGE_MESSAGES - Manage messages.
- * @prop EMBED_LINKS - Embed links.
- * @prop ATTACH_FILES - Attach files.
- * @prop READ_MESSAGE_HISTORY - Read message history.
- * @prop MENTION_EVERYONE - Mention everyone.
- * @prop USE_EXTERNAL_EMOJIS - Use external emojis.
- * @prop CONNECT - Connect to voice.
- * @prop SPEAK - Speak in voice.
- * @prop MUTE_MEMBERS - Mute members.
- * @prop DEAFEN_MEMBERS - Deafen members.
- * @prop MOVE_MEMBERS - Move members.
- * @prop USE_VAD - Use voice activity detection.
- * @prop CHANGE_NICKNAME - Change nickname.
- * @prop MANAGE_NICKNAMES - Manage nicknames.
- * @prop MANAGE_ROLES - Manage roles.
- * @prop MANAGE_WEBHOOKS - Manage webhooks.
- * @prop MANAGE_EMOJIS_AND_STICKERS - Manage emojis and stickers.
- * @prop USE_APPLICATION_COMMANDS - Use application commands.
- * @prop REQUEST_TO_SPEAK - Request to speak.
- * @prop MANAGE_EVENTS - Manage events.
- * @prop MANAGE_THREADS - Manage threads.
- * @prop CREATE_PUBLIC_THREADS - Create public threads.
- * @prop CREATE_PRIVATE_THREADS - Create private threads.
- * @prop USE_EXTERNAL_STICKERS - Use external stickers.
- * @prop SEND_MESSAGES_IN_THREADS - Send messages in threads.
- * @prop START_EMBEDDED_ACTIVITIES - Start embedded activities.
- * @prop MODERATE_MEMBERS - Moderate members.
- */
-export const DiscordPermissions = {
-    CREATE_INSTANT_INVITE: ['CREATE_INSTANT_INVITE', 0x1],
-    KICK_MEMBERS: ['KICK_MEMBERS', 0x2],
-    BAN_MEMBERS: ['BAN_MEMBERS', 0x4],
-    ADMINISTRATOR: ['ADMINISTRATOR', 0x8],
-    MANAGE_CHANNELS: ['MANAGE_CHANNELS', 0x10],
-    MANAGE_GUILD: ['MANAGE_GUILD', 0x20],
-    ADD_REACTIONS: ['ADD_REACTIONS', 0x40],
-    VIEW_AUDIT_LOG: ['VIEW_AUDIT_LOG', 0x80],
-    PRIORITY_SPEAKER: ['PRIORITY_SPEAKER', 0x100],
-    STREAM: ['STREAM', 0x200],
-    VIEW_CHANNEL: ['VIEW_CHANNEL', 0x400],
-    SEND_MESSAGES: ['SEND_MESSAGES', 0x800],
-    SEND_TTS_MESSAGES: ['SEND_TTS_MESSAGES', 0x1000],
-    MANAGE_MESSAGES: ['MANAGE_MESSAGES', 0x2000],
-    EMBED_LINKS: ['EMBED_LINKS', 0x4000],
-    ATTACH_FILES: ['ATTACH_FILES', 0x8000],
-    READ_MESSAGE_HISTORY: ['READ_MESSAGE_HISTORY', 0x10000],
-    MENTION_EVERYONE: ['MENTION_EVERYONE', 0x20000],
-    USE_EXTERNAL_EMOJIS: ['USE_EXTERNAL_EMOJIS', 0x40000],
-    VIEW_GUILD_INSIGHTS: ['VIEW_GUILD_INSIGHTS', 0x80000],
-    CONNECT: ['CONNECT', 0x100000],
-    SPEAK: ['SPEAK', 0x200000],
-    MUTE_MEMBERS: ['MUTE_MEMBERS', 0x400000],
-    DEAFEN_MEMBERS: ['DEAFEN_MEMBERS', 0x800000],
-    MOVE_MEMBERS: ['MOVE_MEMBERS', 0x1000000],
-    USE_VAD: ['USE_VAD', 0x2000000],
-    CHANGE_NICKNAME: ['CHANGE_NICKNAME', 0x4000000],
-    MANAGE_NICKNAMES: ['MANAGE_NICKNAMES', 0x8000000],
-    MANAGE_ROLES: ['MANAGE_ROLES', 0x10000000],
-    MANAGE_WEBHOOKS: ['MANAGE_WEBHOOKS', 0x20000000],
-    MANAGE_EMOJIS_AND_STICKERS: ['MANAGE_EMOJIS_AND_STICKERS', 0x40000000],
-    USE_APPLICATION_COMMANDS: ['USE_APPLICATION_COMMANDS', 0x80000000],
-    REQUEST_TO_SPEAK: ['REQUEST_TO_SPEAK', 0x100000000],
-    MANAGE_EVENTS: ['MANAGE_EVENTS', 0x200000000],
-    MANAGE_THREADS: ['MANAGE_THREADS', 0x400000000],
-    CREATE_PUBLIC_THREADS: ['CREATE_PUBLIC_THREADS', 0x800000000],
-    CREATE_PRIVATE_THREADS: ['CREATE_PRIVATE_THREADS', 0x1000000000],
-    USE_EXTERNAL_STICKERS: ['USE_EXTERNAL_STICKERS', 0x2000000000],
-    SEND_MESSAGES_IN_THREADS: ['SEND_MESSAGES_IN_THREADS', 0x4000000000],
-    START_EMBEDDED_ACTIVITIES: ['START_EMBEDDED_ACTIVITIES', 0x8000000000],
-    MODERATE_MEMBERS: ['MODERATE_MEMBERS', 0x10000000000]
-}
+export const Engines = EnginesEnum
+
+export const DiscordPermissions = PermissionsEnum

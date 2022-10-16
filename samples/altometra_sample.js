@@ -3,28 +3,30 @@ const path = require('path')
 const dotenv = require('dotenv').config({path: path.join(__dirname, './.env')})
 
 const { Client, Intents } = require('discord.js')
-const client = new Client({ intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS ] })
+const client = new Client({ intents: [ Intents.FLAGS.GUILDS ] })
+/*const helmet = require('@fastify/helmet')*/
 
 client.login(process.env.BOT_TOKEN)
 
 const { Dashboard, Engines, DiscordPermissions } = require('../dist/index')
 
-const DefaultTheme = require('../Themes/NextSample')
-const Theme = new DefaultTheme.Provider()
+const Kardex = require('../Themes/Altometra')
+const Theme = new Kardex.Provider()
     .addCustomPage({
-        url: '/privacy-policy',
-        icon: 'InfoSquare',
-        name: 'Privacy Policy',
-        section: 'Legal',
+        url: '/test',
+        components: [],
+        icon: 'home',
+        name: 'Test',
+        section: 'LoL',
     })
 
 new Dashboard(Engines.NEXT)
-    .setDev(true)
+    .setDev(false)
     .registerProject({
         accountToken: process.env.ASSISTANTS_SERVICES_ACCOUNT_TOKEN,
         projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID
     })
-    .setRequiredPermissions([ DiscordPermissions.ADMINISTRATOR, DiscordPermissions.MANAGE_NICKNAMES ])
+    .setRequiredPermissions([DiscordPermissions.ADMINISTRATOR])
     .setTheme(Theme)
     .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
     .setPort(process.env.PORT)
@@ -48,7 +50,7 @@ new Dashboard(Engines.NEXT)
     })
     .setAdministrators(['778685361014046780'])
     .setFastifyUtilities([
-       /* [helmet, { contentSecurityPolicy: false, global: true }],*/
+        /*[helmet, { contentSecurityPolicy: false, global: true }],*/
     ])
     .start()
     .then((instance) => {
