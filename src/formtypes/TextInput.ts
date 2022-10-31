@@ -74,59 +74,31 @@ export class TextInput {
         clientSideValidation: '()=>{return null}'
     };
 
-    /**
-     * Set the default value of the input.
-     * @param {string} value - The default value of the input.
-     */
     public setDefaultValue(value: string) {
         this.settings.defaultValue = value
         return this
     }
 
-    /**
-     * Set the placeholder of the input.
-     * @param {string} value - The placeholder of the input.
-     */
     public setPlaceholder(value: string) {
         this.settings.placeholder = value
         return this
     }
-
-    /**
-     * Set the max length of the input.
-     * @param {number} value - The max length of the input.
-     */
 
     public setMaxLength(value: number) {
         this.settings.maxLength = value
         return this
     }
 
-    /**
-     * Set the min length of the input.
-     * @param {number} value - The min length of the input.
-     */
-
     public setMinLength(value: number) {
         this.settings.minLength = value
         return this
     }
-
-    /**
-     * Set the required state of the input.
-     * @param {boolean} value - The required state of the input.
-     */
 
     public setRequired(value: boolean) {
         this.settings.required = value
         return this
     }
 
-    /**
-     * Set the disabled state of the input.
-     * @param {boolean} value - The disabled state of the input.
-     * @param {string} reason - The reason why the input is disabled.
-     */
     public setGlobalDisabled(value: boolean, reason: string) {
         this.settings.disabled = {
             bool: value,

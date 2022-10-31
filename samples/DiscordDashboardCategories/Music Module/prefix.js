@@ -1,5 +1,5 @@
 const {TextInput} = require('../../../dist/index').FormTypes
-/*const {TextInputManager, TextInputObjects} = require('../../../Themes/NextSample').ThemeOptions*/
+const {TextInputManager, TextInputObjects} = require('../../../Themes/NextSample').ThemeOptions
 
 let temp = null
 
@@ -15,13 +15,9 @@ module.exports = {
         })
         .setMinLength(1)
         .setMaxLength(10),
-   /* themeOptions: new TextInputManager()
+   themeOptions: new TextInputManager()
         .useEmojiPicker(true)
-        .useCustomStyle(TextInputObjects.optionContainer, {
-            backgroundColor: '#ff0000',
-        })
-        .useIconLeft('bi bi-person')
-        .useColMd(12),*/
+        .setLabel('Some label'),
     // dont display at all
     shouldBeDisplayed: async ({member, guild}) => {
         return true

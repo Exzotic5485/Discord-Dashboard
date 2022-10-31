@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react'
+import {TextField} from "@mui/material";
 
-export default function TextInput({ category_id, option: { themeOptions, name, description, type, id, allowed, reason, value }, UpdateOptionValue }) {
-    const [optionValue, setOptionValue] = useState(value) // optionValue is the value of the option (initial value = value from API endpoint [returned in option get function])
+export default function TextInput({ category_id, option: { themeOptions, name, description, label, type, id, allowed, reason, value }, UpdateOptionValue }) {
+    const [optionValue, setOptionValue] = useState(value)
     const [changesCount, setChangesCount] = useState(0)
 
     useEffect(()=>{
@@ -20,14 +21,11 @@ export default function TextInput({ category_id, option: { themeOptions, name, d
 
     return (
         <div style={Object.assign(themeOptions?.customStyles?.optionContainer || { backgroundColor: 'none' }, {})}> {/* optionContainer */}
-            <h1>{name}</h1>
-            <p>({type.name})</p>
-            <input disabled={allowed===false} type="text" name={name} id={id} value={optionValue} onChange={handleChange} />
-            {
-                allowed===false?
-                    <p>{reason}</p>
-                    :null
-            }
+            <p>{name}</p>
+            <p dangerouslySetInnerHTML={{
+                __html: description
+            }}/>
+            <TextField fullWidth={true} helperText={allowed===false?reason:null} disabled={allowed===false} label={themeOptions?.label} value={optionValue} onChange={handleChange}/>
             {themeOptions?.emojiPicker ? <div>Seems like you want us to display emoji picker, but that's not possible as it's only Sample!</div> : null}
         </div>
     )

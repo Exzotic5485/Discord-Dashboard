@@ -39,7 +39,6 @@ module.exports = {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        await sleep(1000)
         return temp
     },
     set: async (newData, { member, guild })=>{

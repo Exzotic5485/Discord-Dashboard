@@ -5,31 +5,15 @@ import PostOptions from "../../utils/PostOptions"
 
 import CategoryOptions from "./CategoryOptions";
 
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css'
+
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            {...other}
-        >
-            {value === index && (
-                <Box sx={{ p: 3 }}>
-                    <a>{children}</a>
-                </Box>
-            )}
-        </div>
-    );
-}
-
 const OptionsManager = ({guild}) => {
+    const [submitCount, setSubmitCount] = useState(0)
     const [settings, setSettings] = useState([])
     const [displaySave, setDisplaySave] = useState(false) // displaySave is a boolean to show/hide the save button
     const [saving, setSaving] = useState(false) // saving is a boolean to show/hide the saving indicator
@@ -66,8 +50,8 @@ const OptionsManager = ({guild}) => {
     const SaveClicked = async () => {
         setSaving(true)
         const res = await PostOptions(guild.id, settingsUpdated)
-        console.log(res)
         setSaving(false)
+        setSubmitCount(submitCount+1)
         setDisplaySave(false)
     }
 
@@ -98,31 +82,27 @@ const OptionsManager = ({guild}) => {
                         </Box>
                         {
                             settings.map((category, idx)=>{
-                                return <TabPanel value={tabNow} index={idx}>
-                                    <CategoryOptions key={category.id} category={category} UpdateOptionValue={UpdateOptionValue} />
-                                </TabPanel>
+                                return <div style={{ display: idx == tabNow ? 'block' : 'none' }}>
+                                    <CategoryOptions category={category} UpdateOptionValue={UpdateOptionValue} />
+                                </div>
                             })
                         }
                     </Box>
-                    {
-                        /*settings.map((category, idx)=>{
-                            console.log(idx)
-                            return <TabPanel value={tabNow} index={idx}>
-                                Item One
-                            </TabPanel>
-                        })*/
-                    }
                 </div>
                 :
                 <div>
-                    <p>Loading...</p>
+                    <Skeleton highlightColor={"#484d50"} baseColor={"transparent"} height={50}  />
+                    <Skeleton highlightColor={"#484d50"} baseColor={"transparent"} height={200}  />
                 </div>
         }
         {
-            displaySave ?
-                <a href={"#post"} onClick={SaveClicked}>Save your settings!</a>
+            settings.length > 0 ?
+                (displaySave?
+                    <a href={"#post"} onClick={SaveClicked}>Save your settings!</a>
+                    :
+                    <div>Not updated yet.</div>)
                 :
-                <div>Not updated yet.</div>
+                <Skeleton highlightColor={"#484d50"} baseColor={"transparent"} height={50} width={150}  />
         }
     </div>
 }

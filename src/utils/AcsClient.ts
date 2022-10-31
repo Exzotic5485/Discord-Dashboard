@@ -6,7 +6,7 @@ export class AcsClient {
     private account_access_token: string = ''
     private dbd_project_id: string = ''
 
-    constructor({ account_access_token, dbd_project_id, api_url="https://actestbeta.site/api" }: { account_access_token: string, dbd_project_id: string, api_url?: string }) {
+    constructor({ account_access_token, dbd_project_id, api_url="http://localhost:3001/api" }: { account_access_token: string, dbd_project_id: string, api_url?: string }) {
         this.account_access_token = account_access_token
         this.dbd_project_id = dbd_project_id
 
@@ -53,4 +53,25 @@ export class AcsClient {
             ErrorThrower("Seems like Assistants Center Services are offline at the moment. Please try again later or contact us. READING: " + err.message)
         }
     }
+
+    public DBD_Stats = {
+        View: async ({ page, user_id, country }: DBD_Stats_View) => {
+            const res = await this.axios.post(`/discord-dashboard/stats/view`, {
+                project_id: this.dbd_project_id,
+                account_token: this.account_access_token,
+                data: {
+                    page,
+                    user_id,
+                    country,
+                }
+            })
+        },
+
+    }
+}
+
+type DBD_Stats_View = {
+    page: string,
+    user_id: string | null,
+    country: string,
 }

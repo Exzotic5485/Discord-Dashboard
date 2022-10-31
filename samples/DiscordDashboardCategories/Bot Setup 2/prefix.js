@@ -1,5 +1,5 @@
 const {TextInput} = require('../../../dist/index').FormTypes
-/*const {TextInputManager, TextInputObjects} = require('../../../Themes/NextSample').ThemeOptions*/
+const {TextInputManager, TextInputObjects} = require('../../../Themes/NextSample').ThemeOptions
 
 let temp = null
 
@@ -13,18 +13,19 @@ module.exports = {
         .setClientSideValidation((value)=>{
             if(value == 'x')return "Value cannot be 'x'"
         }),
-    /*themeOptions: new TextInputManager()
+    themeOptions: new TextInputManager()
         .useEmojiPicker(true)
         .useCustomStyle(TextInputObjects.optionContainer, {
             backgroundColor: '#ff0000',
-        }),*/
+        })
+        .setLabel('Label!'),
     // dont display at all
     shouldBeDisplayed: async ({member, guild}) => {
         return true
     },
     // display with error
     permissionsValidate: async ({ member }) => {
-        const blacklisted = true
+        const blacklisted = false
         if(blacklisted)return "You are blacklisted from this option"
 
         return null
@@ -39,7 +40,6 @@ module.exports = {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        await sleep(1000)
         return temp
     },
     set: async (newData, { member, guild })=>{

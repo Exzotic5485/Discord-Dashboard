@@ -3,6 +3,7 @@ module.exports = class TextInput {
     customStyles = {}
     iconLeft = null
     iconRight = null
+    label = ''
 
     resolveType = 'getSettings'
     // you need to return .getSettings() in each manager
@@ -29,12 +30,18 @@ module.exports = class TextInput {
         return this
     }
 
+    setLabel = (value) => {
+        this.label = value
+        return this
+    }
+
     getSettings = () => {
         return {
             emojiPicker: this.emojiPicker,
             customStyles: this.customStyles,
             iconLeft: this.iconLeft,
             iconRight: this.iconRight,
+            label: this.label,
         }
     }
 }

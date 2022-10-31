@@ -7,6 +7,7 @@ const GuildManage = ({ guild }) => {
     console.log('guild is', guild)
     return <div>
         <div style={{width:'100%',textAlign:'center',paddingBottom:25}}>
+            <img src={guild.iconURL ? guild.iconURL+"?size=512" : `https://cdn.discordapp.com/embed/avatars/0.png`} style={{borderRadius:'50%'}} width={200} height={200}/>
             <h1 style={{
                 fontSize: 42,
                 color: themeConfig.colors.text.primary,

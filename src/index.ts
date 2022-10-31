@@ -223,6 +223,8 @@ export class Dashboard {
 
         colors.enable()
         console.log(this.LicenseStatus.type == 'premium' ? "DISCORD-DASHBOARD PREMIUM ❤️".rainbow : "DISCORD-DASHBOARD FREE")
+        console.log(`Project ID: ${this.project.projectId}`)
+        console.log('\n')
         if(this.LicenseStatus.type == 'premium'){
             console.log(`Date of next payment: ${new Date(new Date(this.LicenseStatus.active_until).getTime()-172800000).toISOString().substring(0, 10)}`.blue)
             console.log(`Valid until: ${new Date(this.LicenseStatus.active_until).toISOString().substring(0, 10)}`.blue)

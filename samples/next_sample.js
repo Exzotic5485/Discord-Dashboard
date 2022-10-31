@@ -2,8 +2,8 @@ const path = require('path')
 
 const dotenv = require('dotenv').config({path: path.join(__dirname, './.env')})
 
-const { Client, Intents } = require('discord.js')
-const client = new Client({ intents: [ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS ] })
+const {Client, GatewayIntentBits, Partials } = require('discord.js')
+const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] })
 
 client.login(process.env.BOT_TOKEN)
 

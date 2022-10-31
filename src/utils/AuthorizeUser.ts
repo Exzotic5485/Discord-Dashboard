@@ -18,7 +18,7 @@ export default async function AuthorizeUser(_props: {oauth:any, props: any, toke
         if(doIt){
             returnGuild.push({
                 ...guild,
-                iconURL: guild.icon && `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`,
+                iconURL: guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png` : `https://cdn.discordapp.com/embed/avatars/0.png`,
             })
         }
     }

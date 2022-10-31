@@ -16,13 +16,13 @@ export const router = (props: any) => {
         )
     })
 
-    props.fastify.get('/creators', async (request: any, reply: any) => {
+    props.fastify.get('/authors', async (request: any, reply: any) => {
         return `This Dashboard instance is powered by the discord-dashboard project from Assistants Center. Free use of the project for non-commercial purposes is permitted. If you are generating income from a bot that is affected by the Dashboard, you must purchase the appropriate license.
 
 Status of this project:
 
-Type: FREE
-Project ID: 62d5bb662b168e555ad007dd
+Type: ${props.LicenseStatus.type.toUpperCase()}
+Project ID: ${props.project.projectId}
 
 The above information is not sensitive information. They are public data. No harm can be done by having this data.
 

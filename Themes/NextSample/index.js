@@ -206,7 +206,7 @@ class Theme {
             if(page.icon){
                 this.#navigation.push({
                     url: page.url || null,
-                    active_match: page.active_match ?? (page.url ?`^(\\/${page.url})$` : null),
+                    active_match: page.active_match ?? (page.url ?`^(\\${page.url})$` : null),
                     icon: page.icon || null,
                     name: page.name || '',
                     section: page.section || '',
@@ -218,7 +218,7 @@ class Theme {
             if(page.icon){
                 this.#navigation.push({
                     url: page.url || null,
-                    active_match: page.active_match ?? (page.url ? `^(\\/${page.url})$` : null),
+                    active_match: page.active_match ?? (page.url ? `^(\\${page.url})$` : null),
                     icon: page.icon || null,
                     name: page.name || '',
                     section: page.section || '',
