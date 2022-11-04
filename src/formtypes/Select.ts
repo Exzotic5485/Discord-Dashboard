@@ -1,23 +1,17 @@
-export class TextInput {
+export class Select {
     public settings: {
         name: string
-        defaultValue: string
-        placeholder: string
-        maxLength: number
-        minLength: number
-        required: boolean
+        values: object
+        defaultSelectedId: string
         disabled: {
             bool: boolean
             reason: string
         }
         clientSideValidation: string
     } = {
-        name: 'TextInput',
-        defaultValue: '',
-        placeholder: '',
-        maxLength: 100,
-        minLength: 0,
-        required: false,
+        name: 'Select',
+        values: {},
+        defaultSelectedId: '',
         disabled: {
             bool: false,
             reason: '',
@@ -25,28 +19,13 @@ export class TextInput {
         clientSideValidation: '()=>{return null}',
     }
 
-    public setDefaultValue(value: string) {
-        this.settings.defaultValue = value
+    public setValues(values: object) {
+        this.settings.values = values
         return this
     }
 
-    public setPlaceholder(value: string) {
-        this.settings.placeholder = value
-        return this
-    }
-
-    public setMaxLength(value: number) {
-        this.settings.maxLength = value
-        return this
-    }
-
-    public setMinLength(value: number) {
-        this.settings.minLength = value
-        return this
-    }
-
-    public setRequired(value: boolean) {
-        this.settings.required = value
+    public setDefaultSelectedId(valueId: string) {
+        this.settings.defaultSelectedId = valueId
         return this
     }
 

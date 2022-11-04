@@ -1,30 +1,38 @@
 const path = require('path')
 
-const dotenv = require('dotenv').config({path: path.join(__dirname, './.env')})
+const dotenv = require('dotenv').config({
+    path: path.join(__dirname, './.env'),
+})
 
-const {Client, GatewayIntentBits, Partials } = require('discord.js')
-const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] })
+const { Client, GatewayIntentBits, Partials } = require('discord.js')
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds],
+    partials: [Partials.Channel],
+})
 
 client.login(process.env.BOT_TOKEN)
 
 const { Dashboard, Engines, DiscordPermissions } = require('../dist/index')
 
 const DefaultTheme = require('../Themes/NextSample')
-const Theme = new DefaultTheme.Provider()
-    .addCustomPage({
-        url: '/privacy-policy',
-        icon: 'InfoSquare',
-        name: 'Privacy Policy',
-        section: 'Legal',
-    })
+const Theme = new DefaultTheme.Provider().addCustomPage({
+    url: '/privacy-policy',
+    icon: 'InfoSquare',
+    name: 'Privacy Policy',
+    section: 'Legal',
+})
 
 new Dashboard(Engines.NEXT)
     .setDev(true)
     .registerProject({
         accountToken: process.env.ASSISTANTS_SERVICES_ACCOUNT_TOKEN,
-        projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID
+        projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID,
     })
-    .setRequiredPermissions([ DiscordPermissions.ADMINISTRATOR, DiscordPermissions.MANAGE_NICKNAMES ])
+    .setRedirectURI('http://localhost:3000/api/auth/callback')
+    .setRequiredPermissions([
+        DiscordPermissions.ADMINISTRATOR,
+        DiscordPermissions.MANAGE_NICKNAMES,
+    ])
     .setTheme(Theme)
     .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
     .setPort(process.env.PORT)
@@ -35,7 +43,7 @@ new Dashboard(Engines.NEXT)
     })
     .setStatic({
         url: '/cdn',
-        path: path.join(__dirname, './static')
+        path: path.join(__dirname, './static'),
     })
     .setSession({
         secret: process.env.SESSION_SECRET,
@@ -44,17 +52,19 @@ new Dashboard(Engines.NEXT)
         store: (session) => {
             const FileStore = require('session-file-store')(session)
             return new FileStore({})
-        }
+        },
     })
     .setAdministrators(['778685361014046780'])
     .setFastifyUtilities([
-       /* [helmet, { contentSecurityPolicy: false, global: true }],*/
+        /* [helmet, { contentSecurityPolicy: false, global: true }],*/
     ])
     .start()
     .then((instance) => {
         console.log(
             `Dashboard started on ${instance.port} port with ${instance.theme.name} ` +
-            `(codename: ${instance.theme.codename}) theme in ${instance.dev ? 'development' : 'production'} mode.`
+                `(codename: ${instance.theme.codename}) theme in ${
+                    instance.dev ? 'development' : 'production'
+                } mode.`
         )
     })
     .catch((err) => {

@@ -6,7 +6,15 @@ export class AcsClient {
     private account_access_token: string = ''
     private dbd_project_id: string = ''
 
-    constructor({ account_access_token, dbd_project_id, api_url="http://localhost:3001/api" }: { account_access_token: string, dbd_project_id: string, api_url?: string }) {
+    constructor({
+        account_access_token,
+        dbd_project_id,
+        api_url = 'http://localhost:3001/api',
+    }: {
+        account_access_token: string
+        dbd_project_id: string
+        api_url?: string
+    }) {
         this.account_access_token = account_access_token
         this.dbd_project_id = dbd_project_id
 
@@ -15,42 +23,54 @@ export class AcsClient {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': account_access_token
-            }
+                Authorization: account_access_token,
+            },
         })
     }
 
     public login = async () => {
-        try{
+        try {
             const res = await this.axios.get('/discord-dashboard/me')
-            if(!res.data){
-                ErrorThrower("Could not authorize with Assistants Center Services. Please try again later.")
-            }else{
-                if(res.data.error){
+            if (!res.data) {
+                ErrorThrower(
+                    'Could not authorize with Assistants Center Services. Please try again later.'
+                )
+            } else {
+                if (res.data.error) {
                     ErrorThrower(res.data.message)
-                }else{
+                } else {
                     return res.data.you_are
                 }
             }
-        }catch (err: any){
-            ErrorThrower("Seems like Assistants Center Services are offline at the moment. Please try again later or contact us. READING: " + err.message)
+        } catch (err: any) {
+            ErrorThrower(
+                'Seems like Assistants Center Services are offline at the moment. Please try again later or contact us. READING: ' +
+                    err.message
+            )
         }
     }
 
     public collectLicenseStatus = async () => {
-        try{
-            const res = await this.axios.get('/discord-dashboard/license/status')
-            if(!res.data){
-                ErrorThrower("Could not authorize with Assistants Center Services. Please try again later.")
-            }else{
-                if(res.data.error){
+        try {
+            const res = await this.axios.get(
+                '/discord-dashboard/license/status'
+            )
+            if (!res.data) {
+                ErrorThrower(
+                    'Could not authorize with Assistants Center Services. Please try again later.'
+                )
+            } else {
+                if (res.data.error) {
                     ErrorThrower(res.data.message)
-                }else{
+                } else {
                     return res.data.license_status
                 }
             }
-        }catch (err: any){
-            ErrorThrower("Seems like Assistants Center Services are offline at the moment. Please try again later or contact us. READING: " + err.message)
+        } catch (err: any) {
+            ErrorThrower(
+                'Seems like Assistants Center Services are offline at the moment. Please try again later or contact us. READING: ' +
+                    err.message
+            )
         }
     }
 
@@ -63,15 +83,14 @@ export class AcsClient {
                     page,
                     user_id,
                     country,
-                }
+                },
             })
         },
-
     }
 }
 
 type DBD_Stats_View = {
-    page: string,
-    user_id: string | null,
-    country: string,
+    page: string
+    user_id: string | null
+    country: string
 }

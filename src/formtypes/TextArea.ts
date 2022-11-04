@@ -1,4 +1,4 @@
-export class TextInput {
+export class TextArea {
     public settings: {
         name: string
         defaultValue: string
@@ -12,7 +12,7 @@ export class TextInput {
         }
         clientSideValidation: string
     } = {
-        name: 'TextInput',
+        name: 'TextArea',
         defaultValue: '',
         placeholder: '',
         maxLength: 100,

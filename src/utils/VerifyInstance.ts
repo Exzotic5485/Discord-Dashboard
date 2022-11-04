@@ -1,4 +1,2 @@
-const Verify = async (instance: any) => {
-    
-}
+const Verify = async (instance: any) => {}
 export default Verify

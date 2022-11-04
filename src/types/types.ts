@@ -1,27 +1,27 @@
 export type Client = {
-    id: string,
-    secret: string,
+    id: string
+    secret: string
 }
 
 export type UserStatic = {
-    url: string,
-    path: string,
+    url: string
+    path: string
 }
 
 export type SSLOptions = {
-    cert: string,
-    key: string,
-    httpRedirect: boolean,
+    cert: string
+    key: string
+    httpRedirect: boolean
 }
 
 export type ProjectInfo = {
-    accountToken: string,
+    accountToken: string
     projectId: string
 }
 
 export type SessionSettings = {
-    store: (fastifySession: any)=>any,
-    secret: string,
-    expires: number,
-    saveUninitialized: boolean,
+    store: (fastifySession: any) => any
+    secret: string
+    expires: number
+    saveUninitialized: boolean
 }
