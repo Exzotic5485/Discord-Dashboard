@@ -8,7 +8,7 @@ const ThemeOptions = {
         optionTitle: 'optionTitle',
         optionDescription: 'optionDescription',
         optionInput: 'optionInput',
-    }
+    },
 }
 
 class Theme {
@@ -19,8 +19,8 @@ class Theme {
     next_app
     next_handler
 
-    customPages=[]
-    #navigation=[]
+    customPages = []
+    #navigation = []
 
     engine = 'next'
 
@@ -30,7 +30,10 @@ class Theme {
      * @param {Boolean} dev - Whether the app is in development mode.
      */
     registerFastifyNext = (fastify, dev) => {
-        fastify.register(require('@fastify/nextjs'), { dev, dir: dev ? path.join(__dirname, './src') : __dirname })
+        fastify.register(require('@fastify/nextjs'), {
+            dev,
+            dir: dev ? path.join(__dirname, './src') : __dirname,
+        })
         return
     }
 
@@ -39,13 +42,13 @@ class Theme {
      *  @param url - The url of the page.
      *  @param components - The components of the page.
      */
-    addCustomPage({ url, components, icon, name, section}) {
+    addCustomPage({ url, components, icon, name, section }) {
         this.customPages.push({
             url,
             icon,
             name,
             components,
-            section
+            section,
         })
 
         return this
@@ -55,8 +58,12 @@ class Theme {
      * Get theme pages.
      * @param fastify - The fastify instance.
      */
-    getPages = ({ fastify, discordClient, categories, requiredPermissions }) => {
-
+    getPages = ({
+        fastify,
+        discordClient,
+        categories,
+        requiredPermissions,
+    }) => {
         const next_app = this.next_app
         let pages = [
             {
@@ -67,21 +74,16 @@ class Theme {
                 icon: 'Home',
                 section: '',
                 preHandler: async (request, reply) => {
-                    if(!request.session.user) {
+                    if (!request.session.user) {
                         return reply.redirect('/auth')
                     }
                 },
                 handler: async (request, reply) => {
-                    return next_app.render(
-                        request.raw,
-                        reply.raw,
-                        '/index',
-                        {
-                            user: request.session.user,
-                            navigation: this.#navigation,
-                            guilds: request.session.guilds,
-                        }
-                    )
+                    return next_app.render(request.raw, reply.raw, '/index', {
+                        user: request.session.user,
+                        navigation: this.#navigation,
+                        guilds: request.session.guilds,
+                    })
                 },
             },
             {
@@ -92,28 +94,38 @@ class Theme {
                 section: 'Dashboard',
                 icon: 'Filter',
                 preHandler: async (request, reply) => {
-                    if(!request.session.user) {
+                    if (!request.session.user) {
                         return reply.redirect('/auth')
                     }
                 },
                 handler: async (request, reply) => {
                     const guilds = request.session.guilds
 
-                    let guildsReturn = guilds.map(guild=>{
-
-                        return guild
-                    }).filter(g=>g)
+                    let guildsReturn = guilds
+                        .map((guild) => {
+                            return guild
+                        })
+                        .filter((g) => g)
 
                     let navigationSections = []
-                    this.#navigation.forEach(nav_el=>{
-                        if(typeof(nav_el.section) == 'string' && !navigationSections.includes(nav_el.section))navigationSections.push(nav_el.section)
+                    this.#navigation.forEach((nav_el) => {
+                        if (
+                            typeof nav_el.section == 'string' &&
+                            !navigationSections.includes(nav_el.section)
+                        )
+                            navigationSections.push(nav_el.section)
                     })
 
                     return next_app.render(
                         request.raw,
                         reply.raw,
                         '/guilds_list',
-                        { user: request.session.user, navigation: this.#navigation, guilds: guildsReturn, navigationSections }
+                        {
+                            user: request.session.user,
+                            navigation: this.#navigation,
+                            guilds: guildsReturn,
+                            navigationSections,
+                        }
                     )
                 },
             },
@@ -125,21 +137,16 @@ class Theme {
                 icon: 'Document',
                 section: 'Dashboard',
                 preHandler: async (request, reply) => {
-                    if(!request.session.user) {
+                    if (!request.session.user) {
                         return reply.redirect('/auth')
                     }
                 },
                 handler: async (request, reply) => {
-                    return next_app.render(
-                        request.raw,
-                        reply.raw,
-                        '/index',
-                        {
-                            user: request.session.user,
-                            navigation: this.#navigation,
-                            guilds: request.session.guilds,
-                        }
-                    )
+                    return next_app.render(request.raw, reply.raw, '/index', {
+                        user: request.session.user,
+                        navigation: this.#navigation,
+                        guilds: request.session.guilds,
+                    })
                 },
             },
             {
@@ -147,28 +154,38 @@ class Theme {
                 url: '/guild/:id',
                 name: 'Manage Guild',
                 preHandler: async (request, reply) => {
-                    if(!request.session.user) {
+                    if (!request.session.user) {
                         return reply.redirect('/auth')
                     }
 
                     const id = request.params.id
                     const guild = discordClient.guilds.cache.get(id)
 
-                    if(!guild)
-                        return reply.redirect('/dashboard?error=Guild not found')
+                    if (!guild)
+                        return reply.redirect(
+                            '/dashboard?error=Guild not found'
+                        )
 
-                    const memberOnGuild = guild.members.cache.get(request.session.user.id)
-                    if(!memberOnGuild)
-                        return reply.redirect('/dashboard?error=You are not on this guild')
+                    const memberOnGuild = guild.members.cache.get(
+                        request.session.user.id
+                    )
+                    if (!memberOnGuild)
+                        return reply.redirect(
+                            '/dashboard?error=You are not on this guild'
+                        )
 
-                    if(!memberOnGuild.permissions.has('ADMINISTRATOR'))
-                        return reply.redirect('/dashboard?error=You are not an administrator')
+                    if (!memberOnGuild.permissions.has('ADMINISTRATOR'))
+                        return reply.redirect(
+                            '/dashboard?error=You are not an administrator'
+                        )
 
-                    const guild_emoji_list = guild.emojis.cache.map(emoji => {
+                    const guild_emoji_list = guild.emojis.cache.map((emoji) => {
                         return {
                             id: emoji.id,
                             name: emoji.name,
-                            url: `https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? 'gif' : 'png'}?size=32`,
+                            url: `https://cdn.discordapp.com/emojis/${
+                                emoji.id
+                            }.${emoji.animated ? 'gif' : 'png'}?size=32`,
                             animated: emoji.animated,
                         }
                     })
@@ -178,35 +195,58 @@ class Theme {
                 },
                 handler: async (request, reply) => {
                     let navigationSections = []
-                    this.#navigation.forEach(nav_el=>{
-                        if(typeof(nav_el.section) == 'string' && !navigationSections.includes(nav_el.section))navigationSections.push(nav_el.section)
+                    this.#navigation.forEach((nav_el) => {
+                        if (
+                            typeof nav_el.section == 'string' &&
+                            !navigationSections.includes(nav_el.section)
+                        )
+                            navigationSections.push(nav_el.section)
                     })
 
-                    return next_app.render(request.raw, reply.raw, '/guild', { guild: request.guild, user: request.session.user, navigation: this.#navigation, navigationSections })
+                    return next_app.render(request.raw, reply.raw, '/guild', {
+                        guild: request.guild,
+                        user: request.session.user,
+                        navigation: this.#navigation,
+                        navigationSections,
+                    })
                 },
             },
             {
                 method: 'get',
                 url: '*',
-                preHandler: async (request, reply) => {
-
-                },
+                preHandler: async (request, reply) => {},
                 handler: async (request, reply) => {
                     let navigationSections = []
-                    this.#navigation.forEach(nav_el=>{
-                        if(typeof(nav_el.section) == 'string' && !navigationSections.includes(nav_el.section))navigationSections.push(nav_el.section)
+                    this.#navigation.forEach((nav_el) => {
+                        if (
+                            typeof nav_el.section == 'string' &&
+                            !navigationSections.includes(nav_el.section)
+                        )
+                            navigationSections.push(nav_el.section)
                     })
 
-                    return next_app.render(request.raw, reply.raw, '/design_index', { hello: '404', user: request.session.user, navigation: this.#navigation, navigationSections })
+                    return next_app.render(
+                        request.raw,
+                        reply.raw,
+                        '/design_index',
+                        {
+                            hello: '404',
+                            user: request.session.user,
+                            navigation: this.#navigation,
+                            navigationSections,
+                        }
+                    )
                 },
             },
         ]
 
-        pages.forEach(page=>{
-            if(page.icon){
+        pages.forEach((page) => {
+            if (page.icon) {
                 this.#navigation.push({
                     url: page.url || null,
-                    active_match: page.active_match ?? (page.url ?`^(\\${page.url})$` : null),
+                    active_match:
+                        page.active_match ??
+                        (page.url ? `^(\\${page.url})$` : null),
                     icon: page.icon || null,
                     name: page.name || '',
                     section: page.section || '',
@@ -214,11 +254,13 @@ class Theme {
             }
         })
 
-        this.customPages.forEach(page=>{
-            if(page.icon){
+        this.customPages.forEach((page) => {
+            if (page.icon) {
                 this.#navigation.push({
                     url: page.url || null,
-                    active_match: page.active_match ?? (page.url ? `^(\\${page.url})$` : null),
+                    active_match:
+                        page.active_match ??
+                        (page.url ? `^(\\${page.url})$` : null),
                     icon: page.icon || null,
                     name: page.name || '',
                     section: page.section || '',
@@ -235,7 +277,10 @@ class Theme {
      * @returns {{next_handler: RequestHandler, next_app: NextServer}} - The next app and the next handler.
      */
     initNext = (dev) => {
-        const next_app = next({ dir: dev ? path.join(__dirname, './src') : __dirname, dev })
+        const next_app = next({
+            dir: dev ? path.join(__dirname, './src') : __dirname,
+            dev,
+        })
         const next_handler = next_app.getRequestHandler()
         this.next_app = next_app
         this.next_handler = next_handler
@@ -245,3 +290,6 @@ class Theme {
 
 module.exports.Provider = Theme
 module.exports.ThemeOptions = ThemeOptions
+module.exports.CustomComponentManagers = {
+    HtmlComponent: require('./customcomponentmanagers/HtmlComponent'),
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import SwitchIOS from '../../formtypes_styled/switch/SwitchIOS'
+import { Checkbox as CheckboxComponent } from '@mui/material'
 
-export default function Switch({
+export default function Checkbox({
     category_id,
     option: {
         themeOptions,
@@ -50,7 +50,7 @@ export default function Switch({
                     __html: description,
                 }}
             />
-            <SwitchIOS
+            <CheckboxComponent
                 disabled={allowed === false}
                 name={name}
                 id={id}

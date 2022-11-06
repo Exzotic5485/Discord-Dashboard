@@ -247,6 +247,7 @@ export class Dashboard {
                 options: categoryOptions,
             })
         }
+        this.categories = this.categories.sort((a, b) => (a.id > b.id ? 1 : -1))
         this.verifyOptions()
         return this
     }
@@ -426,6 +427,7 @@ export class Dashboard {
             )
             options.push(option)
         }
+        options.sort((a, b) => (a.id > b.id ? 1 : -1))
         return options
     }
 
@@ -440,7 +442,7 @@ export class Dashboard {
             for (const option of category.options) {
                 if (!option.type)
                     ErrorThrower(`Option ${option.name} has no type.`)
-                if (!option.name)
+                if (!option.name && option.type.name != 'CustomComponent')
                     ErrorThrower(
                         `An option in ${category.name} category with ${option.type.name} type has no name.`
                     )
@@ -449,6 +451,10 @@ export class Dashboard {
                     ErrorThrower(
                         `Option id ${option.id} of ${option.name} option is not unique.`
                     )
+                if (option.type.name == 'CustomComponent') {
+                    optionsIds.push(option.id)
+                    continue
+                }
                 if (!option.get || typeof option.get !== 'function')
                     ErrorThrower(
                         `Option ${option.name} in ${category.name} category has no get function or it's type isn't a function.`
@@ -565,13 +571,18 @@ export class Dashboard {
 import { TextInput } from './formtypes/TextInput'
 import { TextArea } from './formtypes/TextArea'
 import { Select } from './formtypes/Select'
+import { Checkbox } from './formtypes/Checkbox'
 import { Switch } from './formtypes/Switch'
+
+import { CustomComponent } from './formtypes/CustomComponent'
 
 export const FormTypes = {
     TextInput,
     TextArea,
-    Select,
+    Checkbox,
     Switch,
+    Select,
+    CustomComponent,
 }
 
 enum EnginesEnum {

@@ -2,12 +2,12 @@ const { Switch } = require('../../../dist/index').FormTypes
 const { TextInputManager, TextInputObjects } =
     require('../../../Themes/NextSample').ThemeOptions
 
-let temp = true
+let temp = null
 
 module.exports = {
     name: 'Prefix but music!',
     description: 'Change bot prefix easily',
-    type: new Switch().setDefaultEnabled(true),
+    type: new Switch().setDefaultValue(false),
     // display with error
     permissionsValidate: async ({ member, guild }) => {
         const blacklisted = false

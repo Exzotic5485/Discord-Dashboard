@@ -9,6 +9,10 @@ export const DisplayOption = async ({
     client,
 }: any) => {
     const optionResponse: any = JSON.parse(JSON.stringify(option)) // to remove refference
+
+    if (optionResponse.type.name == 'CustomComponent')
+        return { display: true, option: optionResponse }
+
     // CASE 1
     // shouldBeDisplayed not met (equals false)
     if (option.shouldBeDisplayed) {

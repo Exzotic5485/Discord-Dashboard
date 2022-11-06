@@ -164,6 +164,10 @@ export const router = ({
                                 (e: any) => e.id === option_body.id
                             )
 
+                            // TEST: Ignore CustomComponent Options
+                            if (optionData.type?.name == 'CustomComponent')
+                                continue
+
                             //  TEST: If should be disabled for user on guild (this one displays error and blocks option if not met)
                             if (optionData.type?.disabled?.bool == true) {
                                 //  TEST: If is globally disabled with option type

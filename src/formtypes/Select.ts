@@ -1,8 +1,14 @@
+type SelectOption = {
+    id: string
+    value: string
+} | null
+
 export class Select {
     public settings: {
         name: string
-        values: object
-        defaultSelectedId: string
+        values: SelectOption[]
+        defaultSelectedId: string | null
+        label: string
         disabled: {
             bool: boolean
             reason: string
@@ -10,8 +16,14 @@ export class Select {
         clientSideValidation: string
     } = {
         name: 'Select',
-        values: {},
-        defaultSelectedId: '',
+        values: [
+            {
+                id: 'ten',
+                value: 'Ten',
+            },
+        ],
+        defaultSelectedId: null,
+        label: 'Select value',
         disabled: {
             bool: false,
             reason: '',
@@ -19,13 +31,18 @@ export class Select {
         clientSideValidation: '()=>{return null}',
     }
 
-    public setValues(values: object) {
+    public setValues(values: SelectOption[]) {
         this.settings.values = values
         return this
     }
 
     public setDefaultSelectedId(valueId: string) {
         this.settings.defaultSelectedId = valueId
+        return this
+    }
+
+    public setLabel(label: string) {
+        this.settings.label = label
         return this
     }
 
@@ -55,7 +72,7 @@ export class Select {
      *
      * @param {TextInput~ClientSideValidation} func - The client side validation of the input.
      */
-    public setClientSideValidation(func: (value: string) => any) {
+    public setClientSideValidation(func: (value: SelectOption) => any) {
         this.settings.clientSideValidation = func.toString()
         return this
     }

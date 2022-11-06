@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import SwitchIOS from '../../formtypes_styled/switch/SwitchIOS'
+import { TextField } from '@mui/material'
 
-export default function Switch({
+export default function TextArea({
     category_id,
     option: {
         themeOptions,
         name,
         description,
+        label,
         type,
         id,
         allowed,
@@ -15,7 +16,7 @@ export default function Switch({
     },
     UpdateOptionValue,
 }) {
-    const [optionValue, setOptionValue] = useState(value) // optionValue is the value of the option (initial value = value from API endpoint [returned in option get function])
+    const [optionValue, setOptionValue] = useState(value)
     const [changesCount, setChangesCount] = useState(0)
 
     useEffect(() => {
@@ -30,7 +31,9 @@ export default function Switch({
     }, [optionValue])
 
     const handleChange = (e) => {
-        setOptionValue(e.target.checked)
+        const CSR = eval(type.clientSideValidation)(e.target.value)
+        if (CSR != null) return alert(CSR)
+        setOptionValue(e.target.value)
     }
 
     return (
@@ -50,14 +53,22 @@ export default function Switch({
                     __html: description,
                 }}
             />
-            <SwitchIOS
+            <TextField
+                fullWidth={true}
+                helperText={allowed === false ? reason : null}
                 disabled={allowed === false}
-                name={name}
-                id={id}
-                checked={optionValue}
+                label={themeOptions?.label}
+                value={optionValue}
                 onChange={handleChange}
+                multiline
+                rows={4}
             />
-            {allowed === false ? <p>{reason}</p> : null}
+            {themeOptions?.emojiPicker ? (
+                <div>
+                    Seems like you want us to display emoji picker, but that's
+                    not possible as it's only Sample!
+                </div>
+            ) : null}
         </div>
     )
 }

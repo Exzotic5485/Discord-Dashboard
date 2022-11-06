@@ -1,4 +1,4 @@
-export class Switch {
+export class Checkbox {
     public settings: {
         name: string
         defaultValue: boolean
@@ -7,7 +7,7 @@ export class Switch {
             reason: string
         }
     } = {
-        name: 'Switch',
+        name: 'Checkbox',
         defaultValue: false,
         disabled: {
             bool: false,
