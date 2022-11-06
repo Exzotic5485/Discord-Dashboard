@@ -36,7 +36,6 @@ new Dashboard(Engines.NEXT)
     })
     .setRedirectURI('http://localhost:3000/api/auth/callback')
     .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
-    .setPort(process.env.PORT)
     .setRequiredPermissions([
         DiscordPermissions.ADMINISTRATOR,
         DiscordPermissions.MANAGE_NICKNAMES,
@@ -58,6 +57,7 @@ new Dashboard(Engines.NEXT)
     .setFastifyUtilities([
         /* [helmet, { contentSecurityPolicy: false, global: true }],*/
     ])
+    .setPort(process.env.PORT)
     .start()
     .then((instance) => {
         console.log(
