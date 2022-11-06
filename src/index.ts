@@ -243,7 +243,7 @@ export class Dashboard {
                     function not() {
                         return false
                     },
-                name: categoryData.name,
+                name: categoryInfo?.name || categoryData.name,
                 options: categoryOptions,
             })
         }
@@ -373,7 +373,7 @@ export class Dashboard {
             .readdirSync(optionsPath)
             .filter(
                 (file) =>
-                    !file.endsWith('.disabled.js') &&
+                    !file.endsWith('.ignore.js') &&
                     file.endsWith('.js') &&
                     !file.startsWith('__')
             )
@@ -382,12 +382,18 @@ export class Dashboard {
             let option = require(path.join(optionsPath, `./${Option}`))
             if (!option.type)
                 return ErrorThrower(
-                    `Option ${Option} doesn't have a type defined.`
+                    `Option in ${path.join(
+                        optionsPath,
+                        `./${Option}`
+                    )} doesn't have a type defined.`
                 )
             option.type = option.type.settings
             if (!option.name)
                 return ErrorThrower(
-                    `Option ${Option} doesn't have a name defined.`
+                    `Option in ${path.join(
+                        optionsPath,
+                        `./${Option}`
+                    )} doesn't have a name defined.`
                 )
             let optionId = option.name
             while (optionId.includes(' ')) optionId = optionId.replace(' ', '_')
@@ -570,18 +576,36 @@ export class Dashboard {
 
 import { TextInput } from './formtypes/TextInput'
 import { TextArea } from './formtypes/TextArea'
-import { Select } from './formtypes/Select'
-import { Checkbox } from './formtypes/Checkbox'
 import { Switch } from './formtypes/Switch'
+import { Checkbox } from './formtypes/Checkbox'
+
+import { Select } from './formtypes/Select'
+import { MultipleSelect } from './formtypes/MutipleSelect'
+
+import { ChannelSelect } from './formtypes/ChannelSelect'
+import { MultipleChannelSelect } from './formtypes/MultipleChannelSelect'
+
+import { RoleSelect } from './formtypes/RoleSelect'
+import { MultipleRoleSelect } from './formtypes/MultipleRoleSelect'
 
 import { CustomComponent } from './formtypes/CustomComponent'
 
 export const FormTypes = {
     TextInput,
     TextArea,
+
     Checkbox,
     Switch,
+
     Select,
+    MultipleSelect,
+
+    ChannelSelect,
+    MultipleChannelSelect,
+
+    RoleSelect,
+    MultipleRoleSelect,
+
     CustomComponent,
 }
 

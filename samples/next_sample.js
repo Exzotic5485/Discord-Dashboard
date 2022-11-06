@@ -24,23 +24,23 @@ const Theme = new DefaultTheme.Provider().addCustomPage({
 
 new Dashboard(Engines.NEXT)
     .setDev(true)
+    .setTheme(Theme)
     .registerProject({
         accountToken: process.env.ASSISTANTS_SERVICES_ACCOUNT_TOKEN,
         projectId: process.env.DISCORD_DASHBOARD_PROJECT_ID,
     })
-    .setRedirectURI('http://localhost:3000/api/auth/callback')
-    .setRequiredPermissions([
-        DiscordPermissions.ADMINISTRATOR,
-        DiscordPermissions.MANAGE_NICKNAMES,
-    ])
-    .setTheme(Theme)
-    .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
-    .setPort(process.env.PORT)
     .setDiscordClient(client)
     .setClientCredentials({
         id: process.env.CLIENT_ID,
         secret: process.env.CLIENT_SECRET,
     })
+    .setRedirectURI('http://localhost:3000/api/auth/callback')
+    .setOptionsFolder(path.join(__dirname, './DiscordDashboardCategories'))
+    .setPort(process.env.PORT)
+    .setRequiredPermissions([
+        DiscordPermissions.ADMINISTRATOR,
+        DiscordPermissions.MANAGE_NICKNAMES,
+    ])
     .setStatic({
         url: '/cdn',
         path: path.join(__dirname, './static'),

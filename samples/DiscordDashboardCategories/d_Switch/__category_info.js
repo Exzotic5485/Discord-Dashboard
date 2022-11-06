@@ -1,5 +1,5 @@
 module.exports = {
-    id: 'c_switch',
+    id: 'd_switch',
     showEnableDisableSwitch: true,
     usePromiseResolveSystem: true,
     isEnabled: async () => {

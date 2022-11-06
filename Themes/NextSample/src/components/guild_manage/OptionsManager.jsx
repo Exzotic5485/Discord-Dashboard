@@ -12,6 +12,7 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
+import { tabsClasses } from '@mui/material'
 
 const OptionsManager = ({ guild }) => {
     const [submitCount, setSubmitCount] = useState(0)
@@ -97,13 +98,19 @@ const OptionsManager = ({ guild }) => {
             {settings.length > 0 ? (
                 <div>
                     <Box sx={{ width: '100%' }}>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Box
+                            sx={{
+                                flexGrow: 1,
+                                maxWidth: { xs: 330, sm: 1 },
+                            }}
+                        >
                             <Tabs
                                 value={tabNow}
                                 onChange={tabChanged}
-                                aria-label="basic tabs example"
                                 variant="scrollable"
-                                scrollButtons="auto"
+                                scrollButtons={true}
+                                allowScrollButtonsMobile
+                                aria-label="scrollable force tabs example"
                             >
                                 {settings.map((category, idx) => {
                                     return (

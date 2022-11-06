@@ -41,6 +41,40 @@ export const DisplayOption = async ({
         }
     }
 
+    if (
+        optionResponse.type.name == 'ChannelSelect' ||
+        optionResponse.type.name == 'MultipleChannelSelect'
+    ) {
+        optionResponse.type.values = [
+            ...optionResponse.type.values,
+            ...client.guilds.cache
+                .get(guild.id)
+                .channels.cache.map((channel: any) => {
+                    return {
+                        value: channel.id,
+                        display_name: '#' + channel.name,
+                    }
+                }),
+        ]
+    }
+
+    if (
+        optionResponse.type.name == 'RoleSelect' ||
+        optionResponse.type.name == 'MultipleRoleSelect'
+    ) {
+        optionResponse.type.values = [
+            ...optionResponse.type.values,
+            ...client.guilds.cache
+                .get(guild.id)
+                .roles.cache.map((role: any) => {
+                    return {
+                        value: role.id,
+                        display_name: '@' + role.name,
+                    }
+                }),
+        ]
+    }
+
     const tempValue = await option.get({ member, guild })
     optionResponse.value =
         tempValue == null ? option.type.defaultValue : tempValue

@@ -35,11 +35,11 @@ module.exports = {
         return null
     },
     get: async ({ member, guild }) => {
-        function sleep(ms) {
+        /*function sleep(ms) {
             return new Promise((resolve) => setTimeout(resolve, ms))
         }
 
-        await sleep(1000)
+        await sleep(1000)*/
         return temp
     },
     set: async (newData, { member, guild }) => {

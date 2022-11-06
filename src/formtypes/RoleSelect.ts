@@ -1,9 +1,9 @@
 type SelectOption = {
-    value: string | number
-    display_name: string | null
+    value: string | number | null
+    display_name: string
 }
 
-export class Select {
+export class RoleSelect {
     public settings: {
         name: string
         values: SelectOption[]
@@ -13,35 +13,24 @@ export class Select {
             bool: boolean
             reason: string
         }
-        clientSideValidation: string
     } = {
-        name: 'Select',
-        values: [
-            {
-                value: 'none',
-                display_name: null,
-            },
-            {
-                value: 'default',
-                display_name: 'Default',
-            },
-        ],
+        name: 'RoleSelect',
+        values: [],
         defaultValue: null,
-        label: 'Select value',
+        label: 'Select role',
         disabled: {
             bool: false,
             reason: '',
         },
-        clientSideValidation: '()=>{return null}',
     }
 
-    public setValues(values: SelectOption[]) {
-        this.settings.values = values
-        return this
-    }
-
-    public setDefaultSelectedId(valueId: string) {
-        this.settings.defaultValue = valueId
+    public addNoneWithText(text: string) {
+        this.settings.values = [
+            {
+                value: null,
+                display_name: text,
+            },
+        ]
         return this
     }
 

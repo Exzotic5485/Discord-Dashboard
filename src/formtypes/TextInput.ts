@@ -59,7 +59,7 @@ export class TextInput {
     }
 
     /**
-     * Validate the TextInput value on Client-Side.
+     * Validate the A_TextInput value on Client-Side.
      * Please note that this is not a Server-Side validator, but a function that will be called on the client side.
      * Don't use any libraries or anything else that is not natively supported by the browser.
      * Value to validate is passed as a parameter.

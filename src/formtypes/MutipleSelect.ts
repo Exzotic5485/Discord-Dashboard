@@ -3,31 +3,31 @@ type SelectOption = {
     display_name: string | null
 }
 
-export class Select {
+export class MultipleSelect {
     public settings: {
         name: string
         values: SelectOption[]
-        defaultValue: string | null
-        label: string
+        defaultValue: string[]
+        placeholder: string
         disabled: {
             bool: boolean
             reason: string
         }
         clientSideValidation: string
     } = {
-        name: 'Select',
+        name: 'MultipleSelect',
         values: [
-            {
-                value: 'none',
-                display_name: null,
-            },
             {
                 value: 'default',
                 display_name: 'Default',
             },
+            {
+                value: 'default2',
+                display_name: 'Default 2',
+            },
         ],
-        defaultValue: null,
-        label: 'Select value',
+        defaultValue: [],
+        placeholder: 'Select value',
         disabled: {
             bool: false,
             reason: '',
@@ -41,12 +41,12 @@ export class Select {
     }
 
     public setDefaultSelectedId(valueId: string) {
-        this.settings.defaultValue = valueId
+        this.settings.defaultValue.push(valueId)
         return this
     }
 
-    public setLabel(label: string) {
-        this.settings.label = label
+    public setPlaceholder(placeholder: string) {
+        this.settings.placeholder = placeholder
         return this
     }
 
