@@ -11,7 +11,7 @@ export type UserStatic = {
 export type SSLOptions = {
     cert: string
     key: string
-    httpRedirect: boolean
+    httpRedirect?: boolean
 }
 
 export type ProjectInfo = {
@@ -21,7 +21,8 @@ export type ProjectInfo = {
 
 export type SessionSettings = {
     store: (fastifySession: any) => any
-    secret: string
-    expires: number
-    saveUninitialized: boolean
+    secret?: string
+    expires?: number
+    saveUninitialized?: boolean
+    secure?: boolean
 }

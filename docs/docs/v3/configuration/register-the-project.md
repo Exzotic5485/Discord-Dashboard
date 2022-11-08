@@ -1,6 +1,6 @@
 # Register the Project <Badge type="warning" text="REQUIRED" />
 
-Once you have your [Project Discord Dashboard instance](/docs/creating-project-instance), it is now time to link your project and account to the Discord-Dashboard project.
+Once you have your [Project Discord Dashboard instance](/v3/creating-project-instance), it is now time to link your project and account to the Discord-Dashboard project.
 
 ```js
 const { Dashboard } = require('discord-dashboard')
@@ -26,4 +26,4 @@ Your token is used to identify you between our server and your project. With thi
 
 ## Project ID
 
-Your project ID is the ID of the project created [in this step](/docs/creating-project-instance).
+Your project ID is the ID of the project created [in this step](/v3/creating-project-instance).

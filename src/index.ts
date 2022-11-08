@@ -52,7 +52,7 @@ export class Dashboard {
 
     public redirect_uri: string = 'http://localhost/api/auth/callback'
 
-    public port: number | undefined
+    public port: number | undefined = 3000
     public dev: boolean = false
     private theme: any
 
@@ -69,10 +69,12 @@ export class Dashboard {
         projectId: '',
     }
 
-    private sessionStore: any
-    private sessionSecret: string | undefined
-    private sessionExpires: number | undefined
-    private saveUninitialized: boolean | undefined
+    private sessionStore: any = null
+    private sessionSecret: string | undefined =
+        'ggt9j5093g5g595t65h0gi6gih5gih956054544gtg4t4gtrgt4gt6g'
+    private sessionExpires: number | undefined = 3_600_000
+    private saveUninitialized: boolean | undefined = false
+    private sessionSecure: boolean | undefined = false
 
     public administrators: string[] | undefined
     public fastifyUtilities: any[] = []
@@ -149,10 +151,11 @@ export class Dashboard {
     public setSession(sessionSettings: SessionSettings) {
         sessionSettings = Object.assign(
             {
-                store: (fastifySession: any) => fastifySession.memory,
+                store: (fastifySession: any) => null,
                 secret: 'ggt9j5093g5g595t65h0gi6gih5gih956054544gtg4t4gtrgt4gt6g',
-                expires: 3600,
+                expires: 3_600_000,
                 saveUninitialized: true,
+                secure: false,
             },
             sessionSettings
         )
@@ -500,7 +503,7 @@ export class Dashboard {
             secret:
                 this.sessionSecret ||
                 `${this.discordClient.id}+${this.client.id}`,
-            cookie: { secure: Boolean(this.SSL?.httpRedirect) },
+            cookie: { secure: Boolean(this.sessionSecure) },
             expires: this.sessionExpires || 1000 * 60 * 60 * 24 * 7, // 7 days
             saveUninitialized: this.saveUninitialized,
             store: this.sessionStore,

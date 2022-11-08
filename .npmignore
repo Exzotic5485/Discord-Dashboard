@@ -1,11 +1,10 @@
 node_modules
 .idea
 src
-test
 tsconfig.json
-samples/.env
-sessions
-test.md
-jsdoc.json
+samples
 docs
 Tutorials
+.prettierrc.json
+.gitignore
+Themes

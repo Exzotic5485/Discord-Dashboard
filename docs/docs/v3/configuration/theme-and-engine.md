@@ -4,7 +4,7 @@ Discord-Dashboard is a module that allows you a huge amount of customisation! Th
 
 To get started with Discord-Dashboard, you now need to select a Theme of your choice. Don't worry, any theme can always be changed and the Dashboard core will always work the same!
 
-Refer to: [Available Themes for Discord-Dashboard v3](#)
+Refer to: [Available Themes](#)
 
 <hr/>
 

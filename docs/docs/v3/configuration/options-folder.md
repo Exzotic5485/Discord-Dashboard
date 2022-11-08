@@ -33,7 +33,7 @@ The options folder structure is as follows:
   <hr/>
 - <Badge type="warning" text="REQUIRED" /> `set: async (newData, {member, guild}) => void` - Function that is called if the option has passed the 'serverSideValidation' test. At this point you should set its value in the database so that the get function can return the new value afterwards,
   <hr/>
-- <Badge type="warning" text="REQUIRED" /> `type: FormTypeManager` - Option FormType ([listed there](/docs/formtypes)),
+- <Badge type="warning" text="REQUIRED" /> `type: FormTypeManager` - Option FormType ([listed there](/v3/formtypes)),
   <hr/>
 - <Badge type="info" text="OPTIONAL" /> `id: string` - Option id, should be unique per category, if not defined, it was generated automatically from the file name,
   <hr/>

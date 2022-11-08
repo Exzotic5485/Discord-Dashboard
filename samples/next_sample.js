@@ -42,12 +42,13 @@ new Dashboard(Engines.NEXT)
     ])
     .setStatic({
         url: '/cdn',
-        path: path.join(__dirname, './static'),
+        path: path.join(__dirname, './cdn'),
     })
     .setSession({
         secret: process.env.SESSION_SECRET,
         expires: 1000 * 60 * 60 * 24 * 7,
         saveUninitialized: false,
+        secure: false,
         store: (session) => {
             const FileStore = require('session-file-store')(session)
             return new FileStore({})
@@ -61,10 +62,11 @@ new Dashboard(Engines.NEXT)
     .start()
     .then((instance) => {
         console.log(
-            `Dashboard started on ${instance.port} port with ${instance.theme.name} ` +
-                `(codename: ${instance.theme.codename}) theme in ${
-                    instance.dev ? 'development' : 'production'
-                } mode.`
+            `Dashboard started on ${instance.port} port with ${
+                instance.theme.name
+            } (codename: ${instance.theme.codename}) theme in ${
+                instance.dev ? 'development' : 'production'
+            } mode!`
         )
     })
     .catch((err) => {

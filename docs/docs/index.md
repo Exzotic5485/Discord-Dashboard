@@ -8,13 +8,13 @@ hero:
   actions:
   - theme: brand
     text: Get Started
-    link: /docs/
+    link: /v3/
   - theme: alt
     text: View on GitHub
     link: https://github.com/Assistants-Center/Discord-Dashboard
   - theme: alt
     text: v2 Documentation
-    link: https://dbd-docs-v2.assistantscenter.com
+    link: https://dbd-docs.assistantscenter.com/v2
 
 features:
   - icon: 
