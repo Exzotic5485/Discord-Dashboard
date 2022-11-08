@@ -1,3 +1,3 @@
-[submodule "Documentation"]
-	path = Documentation
-	url = https://github.com/Assistants-Center/Documentation/docs/v3
+[submodule "docs"]
+	path = docs
+	url = https://github.com/Assistants-Center/Documentation
