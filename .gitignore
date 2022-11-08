@@ -3,10 +3,3 @@ node_modules
 dist
 samples/.env
 sessions
-Themes/AltometraTheme
-Themes/DefaultTheme
-Themes/KardexTheme
-Themes/NextSample/node_modules
-Themes/NextSample/.next
-Themes/NextSample/src/.next
-Themes/Altometra

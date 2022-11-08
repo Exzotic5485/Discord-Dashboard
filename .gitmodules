@@ -1,3 +1,6 @@
-[submodule "docs"]
+[submodule "Documentation"]
 	path = Documentation
 	url = https://github.com/Assistants-Center/Documentation
+[submodule "Kardex-Theme"]
+	path = Kardex-Theme
+	url = https://github.com/Assistants-Center/Kardex-Theme
