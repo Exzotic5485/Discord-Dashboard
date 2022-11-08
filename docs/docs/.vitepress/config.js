@@ -1,5 +1,4 @@
 export default {
-    base: '/v3/',
     title: 'Discord-Dashboard Docs',
     description: 'Discord-Dashboard project documentation.',
     themeConfig: {
