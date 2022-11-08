@@ -5,6 +5,8 @@ import { isInvalidRoute, redirect } from './plugins/redirect'
 const theme = {
     ...DefaultTheme,
     enhanceApp({ app, router }) {
+        DefaultTheme.enhanceApp({ app, router })
+
         if (inBrowser) {
             if (isInvalidRoute()) {
                 redirect()
