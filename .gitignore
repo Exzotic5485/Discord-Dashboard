@@ -1,5 +1,6 @@
 node_modules
 .idea
 dist
-samples/.env
+../AAA_Samples/.env
 sessions
+sample
