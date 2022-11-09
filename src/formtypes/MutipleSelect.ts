@@ -7,13 +7,12 @@ export class MultipleSelect {
     public settings: {
         name: string
         values: SelectOption[]
-        defaultValue: string[]
+        defaultValue: string|number[]
         placeholder: string
         disabled: {
             bool: boolean
             reason: string
         }
-        clientSideValidation: string
     } = {
         name: 'MultipleSelect',
         values: [
@@ -32,7 +31,6 @@ export class MultipleSelect {
             bool: false,
             reason: '',
         },
-        clientSideValidation: '()=>{return null}',
     }
 
     public setValues(values: SelectOption[]) {
@@ -40,8 +38,8 @@ export class MultipleSelect {
         return this
     }
 
-    public setDefaultSelectedId(valueId: string) {
-        this.settings.defaultValue.push(valueId)
+    public setDefaultSelectedIds(values: string|number[]) {
+        this.settings.defaultValue = values
         return this
     }
 

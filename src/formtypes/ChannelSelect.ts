@@ -13,6 +13,7 @@ export class ChannelSelect {
             bool: boolean
             reason: string
         }
+        types: any[]
     } = {
         name: 'ChannelSelect',
         values: [],
@@ -22,6 +23,12 @@ export class ChannelSelect {
             bool: false,
             reason: '',
         },
+        types: []
+    }
+
+    public allowTypes(types: any[]) {
+        this.settings.types = types
+        return this
     }
 
     public addNoneWithText(text: string) {

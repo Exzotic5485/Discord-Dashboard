@@ -13,7 +13,7 @@ export class MultipleChannelSelect {
             bool: boolean
             reason: string
         }
-        clientSideValidation: string
+        types: any[]
     } = {
         name: 'MultipleChannelSelect',
         values: [],
@@ -23,7 +23,12 @@ export class MultipleChannelSelect {
             bool: false,
             reason: '',
         },
-        clientSideValidation: '()=>{return null}',
+        types: []
+    }
+
+    public allowTypes(types: any[]) {
+        this.settings.types = types
+        return this
     }
 
     public setPlaceholder(placeholder: string) {

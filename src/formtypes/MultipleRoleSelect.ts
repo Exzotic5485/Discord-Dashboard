@@ -13,7 +13,7 @@ export class MultipleRoleSelect {
             bool: boolean
             reason: string
         }
-        clientSideValidation: string
+        allowEveryone: boolean
     } = {
         name: 'MultipleRoleSelect',
         values: [],
@@ -23,7 +23,12 @@ export class MultipleRoleSelect {
             bool: false,
             reason: '',
         },
-        clientSideValidation: '()=>{return null}',
+        allowEveryone: true,
+    }
+
+    public disallowEveryone() {
+        this.settings.allowEveryone = false
+        return this
     }
 
     public setPlaceholder(placeholder: string) {

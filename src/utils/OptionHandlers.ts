@@ -50,11 +50,14 @@ export const DisplayOption = async ({
             ...client.guilds.cache
                 .get(guild.id)
                 .channels.cache.map((channel: any) => {
+                    if(optionResponse.type.types.length > 0) {
+                        if(!optionResponse.type.types.includes(channel.type)) return null
+                    }
                     return {
                         value: channel.id,
                         display_name: '#' + channel.name,
                     }
-                }),
+                }).filter((e: any)=>e!=null),
         ]
     }
 
@@ -67,11 +70,14 @@ export const DisplayOption = async ({
             ...client.guilds.cache
                 .get(guild.id)
                 .roles.cache.map((role: any) => {
+                    if(!optionResponse.type.allowEveryone) {
+                        if(role.name == '@everyone') return null
+                    }
                     return {
                         value: role.id,
-                        display_name: '@' + role.name,
+                        display_name: role.name.startsWith('@') ? role.name : '@' + role.name,
                     }
-                }),
+                }).filter((e: any)=>e!=null),
         ]
     }
 

@@ -1,5 +1,5 @@
 type SelectOption = {
-    value: string | number
+    value: string | number | null
     display_name: string | null
 }
 
@@ -18,12 +18,8 @@ export class Select {
         name: 'Select',
         values: [
             {
-                value: 'none',
-                display_name: null,
-            },
-            {
-                value: 'default',
-                display_name: 'Default',
+                value: null,
+                display_name: 'None',
             },
         ],
         defaultValue: null,

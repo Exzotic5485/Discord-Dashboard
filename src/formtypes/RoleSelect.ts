@@ -13,6 +13,7 @@ export class RoleSelect {
             bool: boolean
             reason: string
         }
+        allowEveryone: boolean
     } = {
         name: 'RoleSelect',
         values: [],
@@ -22,6 +23,12 @@ export class RoleSelect {
             bool: false,
             reason: '',
         },
+        allowEveryone: true
+    }
+
+    public disallowEveryone() {
+        this.settings.allowEveryone = false
+        return this
     }
 
     public addNoneWithText(text: string) {

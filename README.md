@@ -6,25 +6,13 @@
 <img src="https://img.shields.io/npm/dt/discord-dashboard?style=for-the-badge">
 </p>
 
-# Discord-Dashboard v3 BETA
+# Discord-Dashboard v3
 
 
 ## Get started
 
-- [Documentation](https://assistants-center.github.io/Discord-Dashboard)
+- [Documentation](https://docs.assistantscenter.com/discord-dashboard/v3/)
 - [Discord Support Server](https://discord.gg/Nkc8MWxHRD)
-
-## Installation
-
-```bash
-yarn add discord-dashboard
-```
-
-or
-
-```bash
-npm install discord-dashboard
-```
 
 ## License
 
