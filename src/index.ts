@@ -289,6 +289,7 @@ export class Dashboard {
         this.LicenseStatus = await this.AcsClient.collectLicenseStatus()
 
         InfoLog(`Hello, ${this.ACS_Identity.username}!`)
+        InfoLog(`We're starting the Dashboard instance for you...`)
         InfoLog('')
 
         const res = await axios.get(
@@ -333,9 +334,9 @@ export class Dashboard {
         colors.disable()
         InfoLog('')
         if(this.LicenseStatus.addons.length > 0) {
-            InfoLog(`Addons: ${this.LicenseStatus.addons.join(', ')}`)
+            InfoLog(`Your Discord-Dashboard v3 Addons: ${this.LicenseStatus.addons.join(', ')}`)
         }else{
-            InfoLog(`Addons: None`)
+            InfoLog(`You don't have any  Discord-Dashboard v3 addons :'(`)
         }
 
         if (this.engine == EnginesEnum.NEXT) {
