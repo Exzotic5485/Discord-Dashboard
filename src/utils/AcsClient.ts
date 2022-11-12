@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { ErrorThrower } from './ErrorThrower'
+import { ErrorThrower } from './Loggers'
 
 export class AcsClient {
     private axios: any

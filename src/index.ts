@@ -23,7 +23,7 @@ import fastifySession from '@fastify/session'
 import fastifyCookie from '@fastify/cookie'
 import fastifyOauth2 from '@fastify/oauth2'
 
-import { ErrorThrower } from './utils/ErrorThrower'
+import {InfoLog, ErrorLog, WarningLog, ErrorThrower} from './utils/Loggers'
 import { AcsClient } from './utils/AcsClient'
 
 import * as ApiRouter from './api/router'
@@ -76,7 +76,7 @@ export class Dashboard {
     private saveUninitialized: boolean | undefined = false
     private sessionSecure: boolean | undefined = false
 
-    public administrators: string[] | undefined
+    public administrators: string[] = []
     public fastifyUtilities: any[] = []
     private dbdPlugins: any[] = []
 
@@ -90,6 +90,16 @@ export class Dashboard {
     public requiredPermissions: PermissionsEnum[] = [
         PermissionsEnum.ADMINISTRATOR,
     ]
+
+    // FOR THEME SIDE PAGES PRE-HANDLER VALIDATION
+    public hasPermissions = (user_id: string, guild_id: string) => {
+        for(const perm of this.requiredPermissions){
+            if(!this.discordClient.guilds.cache.get(guild_id))return false
+            if(!this.discordClient.guilds.cache.get(guild_id).members.cache.get(user_id))return false
+            if(!this.discordClient.guilds.cache.get(guild_id).members.cache.get(user_id).permissions.has(perm)) return false
+        }
+        return true
+    }
 
     private discordClient: any
 
@@ -271,13 +281,22 @@ export class Dashboard {
     }
 
     public start = async () => {
+        this.AcsClient = new AcsClient({
+            account_access_token: this.project.accountToken,
+            dbd_project_id: this.project.projectId,
+        })
+        this.ACS_Identity = await this.AcsClient.login()
+        this.LicenseStatus = await this.AcsClient.collectLicenseStatus()
+
+        InfoLog(`Hello, ${this.ACS_Identity.username}!`)
+        InfoLog('')
+
         const res = await axios.get(
             'https://registry.npmjs.org/discord-dashboard/latest'
         )
         if (res.data?.version > this.version) {
-            console.log(
-                `[Discord Dashboard v${this.version}] There is a new version of Discord Dashboard available. Please update.`
-            )
+            WarningLog(`New version of discord-dashboard is available! Your version: ${this.version}, latest version: ${res.data?.version}`)
+            InfoLog('')
             const this_version = await axios.get(
                 `https://registry.npmjs.org/discord-dashboard/${this.version}`
             )
@@ -290,48 +309,45 @@ export class Dashboard {
 
         await this.discordClient.guilds.fetch()
 
-        this.AcsClient = new AcsClient({
-            account_access_token: this.project.accountToken,
-            dbd_project_id: this.project.projectId,
-        })
-        this.ACS_Identity = await this.AcsClient.login()
-        this.LicenseStatus = await this.AcsClient.collectLicenseStatus()
-
         colors.enable()
-        console.log(
-            this.LicenseStatus.type == 'premium'
-                ? 'DISCORD-DASHBOARD PREMIUM ❤️'.rainbow
-                : 'DISCORD-DASHBOARD FREE'
-        )
-        console.log(`Project ID: ${this.project.projectId}`)
-        console.log('\n')
-        console.log(this.LicenseStatus)
+        InfoLog(this.LicenseStatus.type == 'premium'
+            ? 'DISCORD-DASHBOARD PREMIUM ❤️'.rainbow
+            : 'DISCORD-DASHBOARD FREE')
+        InfoLog(`Project ID: ${this.project.projectId}`)
         if (this.LicenseStatus.type == 'premium') {
-            console.log(
+            InfoLog('')
+            InfoLog(
                 `Date of next payment: ${new Date(
                     new Date(this.LicenseStatus.active_until).getTime() -
                         172800000
                 )
                     .toISOString()
-                    .substring(0, 10)}`.blue
+                    .substring(0, 10)}`
             )
-            console.log(
+            InfoLog(
                 `Valid until: ${new Date(this.LicenseStatus.active_until)
                     .toISOString()
-                    .substring(0, 10)}`.blue
+                    .substring(0, 10)}`
             )
-            console.log('\n')
         }
         colors.disable()
+        InfoLog('')
+        if(this.LicenseStatus.addons.length > 0) {
+            InfoLog(`Addons: ${this.LicenseStatus.addons.join(', ')}`)
+        }else{
+            InfoLog(`Addons: None`)
+        }
 
         if (this.engine == EnginesEnum.NEXT) {
             if (this.dev) {
-                console.log(
+                WarningLog(
                     'Dashboard is in development mode. Please note that the dashboard will not send statistics to Assistants Services.'
                 )
-                console.log(
-                    "Also, each change in the theme pages source code will not be reflected in the dashboard after turning off development mode. You'll have to run the build command inside theme folder to build the changes into production environment."
+                WarningLog(
+                    "Also, each change in the theme pages source code will not be reflected in the dashboard after turning off development mode."
                 )
+                WarningLog("You'll have to run the build command inside theme folder to build the changes into production environment.")
+                console.log()
             }
             this.fastify = fastifyModule({ logger: false })
             await this.prepareNext()
@@ -348,7 +364,7 @@ export class Dashboard {
             return this
         } else if (this.engine == EnginesEnum.EJS) {
             if (this.dev) {
-                console.log(
+                WarningLog(
                     'Running on EJS engine in development mode. Please note that the dashboard will not send statistics to Assistants Services.'
                 )
             }
