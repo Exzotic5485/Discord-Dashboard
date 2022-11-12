@@ -5,21 +5,20 @@
   "license": "CC BY-NC-SA 4.0",
   "scripts": {},
   "dependencies": {
-    "@fastify/cookie": "6.*",
-    "@fastify/helmet": "^8.*",
-    "@fastify/oauth2": "5.*",
-    "@fastify/session": "8.*",
-    "@fastify/static": "5.*",
+    "@fastify/cookie": "^8.3.0",
+    "@fastify/helmet": "^10.0.2",
+    "@fastify/oauth2": "^6.1.0",
+    "@fastify/session": "^10.0.2",
+    "@fastify/static": "^6.5.0",
     "axios": "^0.27.2",
     "colors": "^1.4.0",
     "discord-oauth2": "^2.10.0",
-    "fastify": "3.*"
+    "fastify": "4.*"
   },
   "devDependencies": {
     "@types/node": "^18.0.6",
-    "assert-diff": "^3.0.2",
     "discord.js": "*",
-    "dotenv": "^16.0.1",
+    "dotenv": "^16.0.3",
     "prettier": "^2.7.1",
     "session-file-store": "^1.5.0"
   }

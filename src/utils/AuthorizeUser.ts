@@ -6,7 +6,7 @@ export default async function AuthorizeUser(_props: {
     reply: any
 }) {
     const { oauth, props, token, request, reply } = _props
-    const User = await oauth.getUser(token.access_token)
+    const User = await oauth.getUser(token.token.access_token)
     request.session.user = {
         id: User.id,
         username: User.username,
@@ -21,7 +21,7 @@ export default async function AuthorizeUser(_props: {
                   User.discriminator % 5
               }.png`,
     }
-    const Guilds = await oauth.getUserGuilds(token.access_token)
+    const Guilds = await oauth.getUserGuilds(token.token.access_token)
     let returnGuild = []
     for (const guild of Guilds) {
         let doIt = true

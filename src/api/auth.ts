@@ -12,6 +12,10 @@ export const router: (props: any) => void = (props: {
     props.fastify.register(
         (instance: any, opts: any, next: any) => {
             instance.get('/callback', async (request: any, reply: any) => {
+                if(request.query?.error){
+                    return reply.redirect(`/?error=${request.query?.error_description}`)
+                }
+
                 if (request.query?.guild_id) {
                     if (
                         !props.discordClient.guilds.cache.get(
@@ -36,7 +40,13 @@ export const router: (props: any) => void = (props: {
                     await props.fastify.discordOAuth2.getAccessTokenFromAuthorizationCodeFlow(
                         request
                     )
+                console.log(token)
                 await AuthorizeUser({ oauth, props, token, request, reply })
+            })
+
+            instance.get('/session/destroy', async (request: any, reply: any) => {
+                await request.session.destroy()
+                return reply.redirect('/')
             })
 
             next()
